@@ -15,20 +15,29 @@ export default function Login() {
       setLoading(true);
       setError('');
 
-      // Mock login para testes — em produção usa API real
-      if (email === 'admin@vmp.com' && password === 'admin123') {
+      const trimmedEmail = email.trim();
+      const trimmedPassword = password.trim();
+
+      console.log('TENTANDO LOGIN:', trimmedEmail);
+
+      // Mock login para testes
+      if (trimmedEmail === 'admin@vmp.com' && trimmedPassword === 'admin123') {
         const mockToken = 'mock-token-' + Date.now();
         localStorage.setItem('vmp_admin_token', mockToken);
-        console.log('LOGIN SUCCESS');
+        console.log('LOGIN MOCK SUCCESS:', mockToken);
         navigate('/');
         return;
       }
 
+      console.log('MOCK LOGIN FALHOU, tentando API...');
+
       // Login real via API
       const res = await API.post('/auth/login', {
-        email,
-        password,
+        email: trimmedEmail,
+        password: trimmedPassword,
       });
+
+      console.log('API RESPONSE:', res.data);
 
       if (!res.data?.token) {
         setError('Resposta inválida do servidor');
@@ -37,6 +46,7 @@ export default function Login() {
 
       localStorage.setItem('vmp_admin_token', res.data.token);
       localStorage.setItem('vmp_role', res.data.role || 'admin');
+      console.log('LOGIN API SUCCESS');
       navigate('/');
     } catch (err) {
       console.log('LOGIN ERROR:', err);
@@ -86,10 +96,7 @@ export default function Login() {
               border: '1px solid #ddd',
               fontSize: 15,
               boxSizing: 'border-box',
-              outline: 'none',
             }}
-            onFocus={(e) => e.target.style.borderColor = '#667eea'}
-            onBlur={(e) => e.target.style.borderColor = '#ddd'}
           />
         </div>
 
@@ -109,10 +116,7 @@ export default function Login() {
               border: '1px solid #ddd',
               fontSize: 15,
               boxSizing: 'border-box',
-              outline: 'none',
             }}
-            onFocus={(e) => e.target.style.borderColor = '#667eea'}
-            onBlur={(e) => e.target.style.borderColor = '#ddd'}
           />
         </div>
 
@@ -129,7 +133,6 @@ export default function Login() {
             fontSize: 16,
             fontWeight: 'bold',
             cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s',
           }}
         >
           {loading ? 'A entrar...' : 'Entrar'}
@@ -148,6 +151,26 @@ export default function Login() {
             {error}
           </p>
         )}
+
+        <button
+          onClick={() => {
+            localStorage.clear();
+            console.log('localStorage limpo');
+            window.location.reload();
+          }}
+          style={{
+            marginTop: 12,
+            padding: 8,
+            background: 'transparent',
+            border: 'none',
+            color: '#999',
+            fontSize: 12,
+            cursor: 'pointer',
+            width: '100%',
+          }}
+        >
+          🧹 Limpar dados (debug)
+        </button>
       </div>
     </div>
   );
