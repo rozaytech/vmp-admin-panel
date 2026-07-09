@@ -25,6 +25,7 @@ const theme = createTheme({
 });
 
 function App() {
+  // CORRIGIDO: verifica vmp_admin_token (não vmp_token)
   const isAuth = localStorage.getItem('vmp_admin_token');
 
   return (

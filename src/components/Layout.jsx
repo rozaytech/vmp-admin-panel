@@ -1,155 +1,153 @@
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import {
-  Box, Drawer, AppBar, Toolbar, List, Typography, Divider,
-  IconButton, ListItem, ListItemButton, ListItemIcon, ListItemText,
-  Avatar, Menu, MenuItem
-} from '@mui/material';
-import {
-  Menu as MenuIcon, Dashboard, Key, AddCircle, Receipt,
-  Mail, Payment, Assessment, ExitToApp
-} from '@mui/icons-material';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
-const drawerWidth = 260;
-
 const menuItems = [
-  { path: '/', label: 'Dashboard', icon: <Dashboard /> },
-  { path: '/licenses', label: 'Licenças', icon: <Key /> },
-  { path: '/licenses/create', label: 'Criar Licença', icon: <AddCircle /> },
-  { path: '/subscriptions', label: 'Subscrições', icon: <Receipt /> },
-  { path: '/requests', label: 'Pedidos', icon: <Mail /> },
-  { path: '/billing', label: 'Faturação', icon: <Payment /> },
-  { path: '/emails', label: 'Emails', icon: <Assessment /> },
+  { path: '/', label: 'Dashboard', icon: '📊' },
+  { path: '/licenses', label: 'Licenças', icon: '🔑' },
+  { path: '/licenses/create', label: 'Criar Licença', icon: '➕' },
+  { path: '/subscriptions', label: 'Subscrições', icon: '📋' },
+  { path: '/requests', label: 'Pedidos', icon: '📥' },
+  { path: '/billing', label: 'Faturação', icon: '💰' },
+  { path: '/emails', label: 'Emails', icon: '✉️' },
 ];
 
 export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
-  const handleProfileMenu = (e) => setAnchorEl(e.currentTarget);
-  const handleClose = () => setAnchorEl(null);
   const handleLogout = () => {
     localStorage.removeItem('vmp_admin_token');
+    localStorage.removeItem('vmp_role');
     window.location.href = '/login';
   };
 
-  const drawer = (
-    <div>
-      <Toolbar sx={{ bgcolor: '#1976d2', color: '#fff' }}>
-        <Typography variant="h6" noWrap fontWeight="bold">
-          VMP SaaS
-        </Typography>
-      </Toolbar>
-      <Divider />
-      <List>
-        {menuItems.map((item) => (
-          <ListItem key={item.path} disablePadding>
-            <ListItemButton
-              selected={location.pathname === item.path}
-              onClick={() => {
-                navigate(item.path);
-                setMobileOpen(false);
-              }}
-              sx={{
-                '&.Mui-selected': {
-                  bgcolor: '#e3f2fd',
-                  borderLeft: '4px solid #1976d2',
-                  '&:hover': { bgcolor: '#e3f2fd' },
-                },
-                borderLeft: '4px solid transparent',
-              }}
-            >
-              <ListItemIcon sx={{ color: location.pathname === item.path ? '#1976d2' : 'inherit' }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.label} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-    </div>
-  );
-
   return (
-    <Box sx={{ display: 'flex' }}>
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          ml: { md: `${drawerWidth}px` },
-          bgcolor: '#fff',
-          color: '#333',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Segoe UI, sans-serif' }}>
+      {/* Mobile menu button */}
+      <button
+        onClick={() => setMobileOpen(!mobileOpen)}
+        style={{
+          position: 'fixed',
+          top: 16,
+          left: 16,
+          zIndex: 1000,
+          padding: '8px 12px',
+          background: '#1976d2',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 4,
+          cursor: 'pointer',
+          display: 'none',
         }}
+        className="mobile-menu-btn"
       >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }}
+        ☰
+      </button>
+
+      {/* Sidebar */}
+      <aside style={{
+        width: 260,
+        background: '#1a237e',
+        color: '#fff',
+        position: 'fixed',
+        height: '100vh',
+        overflowY: 'auto',
+        transition: 'transform 0.3s',
+        zIndex: 100,
+      }}>
+        <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 'bold' }}>VMP SaaS</h2>
+          <p style={{ margin: '4px 0 0', fontSize: 12, opacity: 0.7 }}>Painel de Admin</p>
+        </div>
+
+        <nav style={{ padding: '16px 0' }}>
+          {menuItems.map((item) => {
+            const active = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setMobileOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '12px 20px',
+                  color: active ? '#fff' : 'rgba(255,255,255,0.7)',
+                  background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  textDecoration: 'none',
+                  fontSize: 14,
+                  borderLeft: active ? '4px solid #4fc3f7' : '4px solid transparent',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                <span style={{ fontSize: 18 }}>{item.icon}</span>
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: 20,
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+        }}>
+          <button
+            onClick={handleLogout}
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: 'rgba(255,255,255,0.1)',
+              color: '#fff',
+              border: '1px solid rgba(255,255,255,0.2)',
+              borderRadius: 6,
+              cursor: 'pointer',
+              fontSize: 14,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+            }}
           >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 500 }}>
-            {menuItems.find(m => m.path === location.pathname)?.label || 'Dashboard'}
-          </Typography>
-          <IconButton onClick={handleProfileMenu}>
-            <Avatar sx={{ width: 32, height: 32, bgcolor: '#1976d2' }}>A</Avatar>
-          </IconButton>
-          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-            <MenuItem onClick={handleLogout}>
-              <ExitToApp fontSize="small" sx={{ mr: 1 }} />
-              Sair
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
+            🚪 Sair
+          </button>
+        </div>
+      </aside>
 
-      <Box
-        component="nav"
-        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
-      >
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-          }}
-        >
-          {drawer}
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
-      </Box>
+      {/* Main content */}
+      <main style={{
+        flex: 1,
+        marginLeft: 260,
+        background: '#f5f5f5',
+        minHeight: '100vh',
+      }}>
+        <div style={{ padding: 32 }}>
+          <Outlet />
+        </div>
+      </main>
 
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          bgcolor: '#f5f5f5',
-          p: 3,
-          width: { md: `calc(100% - ${drawerWidth}px)` },
-          minHeight: '100vh',
-        }}
-      >
-        <Toolbar />
-        <Outlet />
-      </Box>
-    </Box>
+      <style>{`
+        @media (max-width: 768px) {
+          .mobile-menu-btn { display: block !important; }
+          aside {
+            transform: translateX(${mobileOpen ? '0' : '-100%'});
+          }
+          main {
+            margin-left: 0 !important;
+          }
+        }
+      `}</style>
+    </div>
   );
 }
