@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 
 const menuItems = [
@@ -14,37 +14,16 @@ const menuItems = [
 export default function Layout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('vmp_admin_token');
     localStorage.removeItem('vmp_role');
+    // CORRIGIDO: window.location força reload
     window.location.href = '/login';
   };
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Segoe UI, sans-serif' }}>
-      {/* Mobile menu button */}
-      <button
-        onClick={() => setMobileOpen(!mobileOpen)}
-        style={{
-          position: 'fixed',
-          top: 16,
-          left: 16,
-          zIndex: 1000,
-          padding: '8px 12px',
-          background: '#1976d2',
-          color: '#fff',
-          border: 'none',
-          borderRadius: 4,
-          cursor: 'pointer',
-          display: 'none',
-        }}
-        className="mobile-menu-btn"
-      >
-        ☰
-      </button>
-
       {/* Sidebar */}
       <aside style={{
         width: 260,
@@ -53,7 +32,6 @@ export default function Layout() {
         position: 'fixed',
         height: '100vh',
         overflowY: 'auto',
-        transition: 'transform 0.3s',
         zIndex: 100,
       }}>
         <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
@@ -68,7 +46,6 @@ export default function Layout() {
               <Link
                 key={item.path}
                 to={item.path}
-                onClick={() => setMobileOpen(false)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -79,13 +56,6 @@ export default function Layout() {
                   textDecoration: 'none',
                   fontSize: 14,
                   borderLeft: active ? '4px solid #4fc3f7' : '4px solid transparent',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) e.currentTarget.style.background = 'transparent';
                 }}
               >
                 <span style={{ fontSize: 18 }}>{item.icon}</span>
@@ -114,10 +84,6 @@ export default function Layout() {
               borderRadius: 6,
               cursor: 'pointer',
               fontSize: 14,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
             }}
           >
             🚪 Sair
@@ -136,18 +102,6 @@ export default function Layout() {
           <Outlet />
         </div>
       </main>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .mobile-menu-btn { display: block !important; }
-          aside {
-            transform: translateX(${mobileOpen ? '0' : '-100%'});
-          }
-          main {
-            margin-left: 0 !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

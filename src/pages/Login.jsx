@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import API from '../api/client';
-import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
 
   async function login() {
     try {
@@ -24,8 +21,9 @@ export default function Login() {
       if (trimmedEmail === 'admin@vmp.com' && trimmedPassword === 'admin123') {
         const mockToken = 'mock-token-' + Date.now();
         localStorage.setItem('vmp_admin_token', mockToken);
-        console.log('LOGIN MOCK SUCCESS:', mockToken);
-        navigate('/');
+        console.log('LOGIN MOCK SUCCESS');
+        // CORRIGIDO: window.location força reload e re-render do App
+        window.location.href = '/';
         return;
       }
 
@@ -37,8 +35,6 @@ export default function Login() {
         password: trimmedPassword,
       });
 
-      console.log('API RESPONSE:', res.data);
-
       if (!res.data?.token) {
         setError('Resposta inválida do servidor');
         return;
@@ -47,7 +43,8 @@ export default function Login() {
       localStorage.setItem('vmp_admin_token', res.data.token);
       localStorage.setItem('vmp_role', res.data.role || 'admin');
       console.log('LOGIN API SUCCESS');
-      navigate('/');
+      // CORRIGIDO: window.location força reload
+      window.location.href = '/';
     } catch (err) {
       console.log('LOGIN ERROR:', err);
       if (err.response?.status === 401) {
@@ -151,26 +148,6 @@ export default function Login() {
             {error}
           </p>
         )}
-
-        <button
-          onClick={() => {
-            localStorage.clear();
-            console.log('localStorage limpo');
-            window.location.reload();
-          }}
-          style={{
-            marginTop: 12,
-            padding: 8,
-            background: 'transparent',
-            border: 'none',
-            color: '#999',
-            fontSize: 12,
-            cursor: 'pointer',
-            width: '100%',
-          }}
-        >
-          🧹 Limpar dados (debug)
-        </button>
       </div>
     </div>
   );
