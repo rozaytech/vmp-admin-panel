@@ -1,6 +1,65 @@
 import { useState } from "react";
 import API from "../api/client";
 
+// Planos definidos localmente (sincronizar com vmp_license_server/billing/plans.js)
+const PLANS = {
+  basic: {
+    code: "basic",
+    name: "Basic",
+    price: 3500,
+    days: 30,
+    maxUsers: 2,
+    maxProducts: 500,
+    features: ["pos", "inventory", "cash_register", "basic_reports", "z_report"],
+    description: "Ideal para pequenos negocios e bancas",
+  },
+  pro: {
+    code: "pro",
+    name: "Pro",
+    price: 7000,
+    days: 30,
+    maxUsers: 5,
+    maxProducts: 5000,
+    features: [
+      "pos",
+      "inventory",
+      "cash_register",
+      "advanced_reports",
+      "z_report",
+      "promotions",
+      "customers",
+      "multi_warehouse",
+      "analytics",
+    ],
+    description: "Para lojas em crescimento",
+  },
+  enterprise: {
+    code: "enterprise",
+    name: "Enterprise",
+    price: 150000,
+    days: 365,
+    maxUsers: 999,
+    maxProducts: 99999,
+    features: [
+      "pos",
+      "inventory",
+      "cash_register",
+      "advanced_reports",
+      "z_report",
+      "promotions",
+      "customers",
+      "multi_warehouse",
+      "analytics",
+      "accounting",
+      "profit_margin",
+      "remote_dashboard",
+      "priority_support",
+      "api_access",
+    ],
+    description: "Para cadeias e grandes estabelecimentos",
+  },
+};
+
 export default function CreateLicense() {
   const [machineId, setMachineId] = useState("");
   const [client, setClient] = useState("");
@@ -37,6 +96,8 @@ export default function CreateLicense() {
     }
   }
 
+  const selectedPlan = PLANS[plan];
+
   return (
     <div style={{ padding: 40 }}>
       <h2>Criar Licença</h2>
@@ -57,12 +118,16 @@ export default function CreateLicense() {
 
       <select
         value={plan}
-        onChange={(e) => setPlan(e.target.value)}
+        onChange={(e) => {
+          const p = e.target.value;
+          setPlan(p);
+          setDays(PLANS[p]?.days || 30);
+        }}
         style={{ display: "block", marginBottom: 10, padding: 8, width: '100%' }}
       >
-        <option value="basic">Basic</option>
-        <option value="pro">Pro</option>
-        <option value="enterprise">Enterprise</option>
+        <option value="basic">Basic (3,500 MZN/mês)</option>
+        <option value="pro">Pro (7,000 MZN/mês)</option>
+        <option value="enterprise">Enterprise (150,000 MZN/ano)</option>
       </select>
 
       <input
@@ -71,6 +136,16 @@ export default function CreateLicense() {
         onChange={(e) => setDays(Number(e.target.value))}
         style={{ display: "block", marginBottom: 10, padding: 8, width: '100%' }}
       />
+
+      {selectedPlan && (
+        <div style={{ marginBottom: 16, padding: 12, backgroundColor: "#f5f5f5", borderRadius: 8, fontSize: 14 }}>
+          <strong>{selectedPlan.name}</strong> — {selectedPlan.price.toLocaleString("pt-PT")} MZN
+          <br />
+          <span style={{ color: "#666" }}>{selectedPlan.description}</span>
+          <br />
+          <span style={{ color: "#666" }}>Max {selectedPlan.maxUsers} utilizadores, {selectedPlan.maxProducts} produtos</span>
+        </div>
+      )}
 
       <button 
         onClick={generate} 

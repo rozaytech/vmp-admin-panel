@@ -1,6 +1,65 @@
 import { useEffect, useState } from "react";
 import API from "../api/client";
 
+// Planos definidos localmente (sincronizar com vmp_license_server/billing/plans.js)
+const PLANS = {
+  basic: {
+    code: "basic",
+    name: "Basic",
+    price: 3500,
+    days: 30,
+    maxUsers: 2,
+    maxProducts: 500,
+    features: ["pos", "inventory", "cash_register", "basic_reports", "z_report"],
+    description: "Ideal para pequenos negocios e bancas",
+  },
+  pro: {
+    code: "pro",
+    name: "Pro",
+    price: 7000,
+    days: 30,
+    maxUsers: 5,
+    maxProducts: 5000,
+    features: [
+      "pos",
+      "inventory",
+      "cash_register",
+      "advanced_reports",
+      "z_report",
+      "promotions",
+      "customers",
+      "multi_warehouse",
+      "analytics",
+    ],
+    description: "Para lojas em crescimento",
+  },
+  enterprise: {
+    code: "enterprise",
+    name: "Enterprise",
+    price: 150000,
+    days: 365,
+    maxUsers: 999,
+    maxProducts: 99999,
+    features: [
+      "pos",
+      "inventory",
+      "cash_register",
+      "advanced_reports",
+      "z_report",
+      "promotions",
+      "customers",
+      "multi_warehouse",
+      "analytics",
+      "accounting",
+      "profit_margin",
+      "remote_dashboard",
+      "priority_support",
+      "api_access",
+    ],
+    description: "Para cadeias e grandes estabelecimentos",
+  },
+};
+
 export default function Licenses() {
   const [licenses, setLicenses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -215,6 +274,10 @@ export default function Licenses() {
                       >
                         {l.plan}
                       </span>
+                      <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>
+                        {PLANS[l.plan]?.price?.toLocaleString("pt-PT")} MZN
+                        {l.plan === "enterprise" ? "/ano" : "/mês"}
+                      </div>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       <span
@@ -346,6 +409,11 @@ export default function Licenses() {
               Cliente: <strong>{transferModal.client}</strong>
               <br />
               Plano: <strong>{transferModal.plan}</strong>
+              <br />
+              Preco: <strong>
+                {PLANS[transferModal.plan]?.price?.toLocaleString("pt-PT")} MZN
+                {transferModal.plan === "enterprise" ? "/ano" : "/mês"}
+              </strong>
               <br />
               Dias restantes:{" "}
               <strong>

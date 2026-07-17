@@ -6,7 +6,7 @@ const PLANS = {
   basic: {
     code: "basic",
     name: "Basic",
-    price: 1500,
+    price: 3500,
     days: 30,
     maxUsers: 2,
     maxProducts: 500,
@@ -16,7 +16,7 @@ const PLANS = {
   pro: {
     code: "pro",
     name: "Pro",
-    price: 3500,
+    price: 7000,
     days: 30,
     maxUsers: 5,
     maxProducts: 5000,
@@ -36,7 +36,7 @@ const PLANS = {
   enterprise: {
     code: "enterprise",
     name: "Enterprise",
-    price: 8500,
+    price: 150000,
     days: 365,
     maxUsers: 999,
     maxProducts: 99999,
@@ -120,7 +120,7 @@ export default function Billing() {
 
   async function simulatePay(id) {
     const plan = subs.find((s) => s.id === id)?.plan;
-    const amount = PLANS[plan]?.price || 1500;
+    const amount = PLANS[plan]?.price || 3500;
 
     try {
       await API.post("/billing/pay", {
@@ -313,9 +313,9 @@ export default function Billing() {
               fontSize: 14,
             }}
           >
-            <option value="basic">Basic (1,500 MZN/mes)</option>
-            <option value="pro">Pro (3,500 MZN/mes)</option>
-            <option value="enterprise">Enterprise (8,500 MZN/ano)</option>
+            <option value="basic">Basic (3,500 MZN/mês)</option>
+            <option value="pro">Pro (7,000 MZN/mês)</option>
+            <option value="enterprise">Enterprise (150,000 MZN/ano)</option>
           </select>
           <input
             type="number"
@@ -444,6 +444,10 @@ export default function Billing() {
                       >
                         {s.plan}
                       </span>
+                      <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>
+                        {PLANS[s.plan]?.price?.toLocaleString("pt-PT")} MZN
+                        {s.plan === "enterprise" ? "/ano" : "/mês"}
+                      </div>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
                       <span
@@ -516,7 +520,7 @@ export default function Billing() {
                             fontSize: 12,
                           }}
                         >
-                          Simular Pagamento
+                          Simular Pagamento ({PLANS[s.plan]?.price?.toLocaleString("pt-PT")} MZN)
                         </button>
                       )}
                     </td>
