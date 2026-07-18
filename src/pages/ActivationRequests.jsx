@@ -13,6 +13,7 @@ export default function ActivationRequests() {
   async function load() {
     try {
       setLoading(true);
+      // CORRECAO: endpoint correto do servidor
       const res = await API.get(`/admin/activation-requests?status=${filter}`);
       setRequests(res.data.requests || []);
     } catch (e) {
@@ -22,9 +23,11 @@ export default function ActivationRequests() {
     }
   }
 
+  // CORRECAO: usar endpoint correto de aprovacao
   async function approve(id) {
     try {
       setLoading(true);
+      // CORRECAO: endpoint correto do servidor
       const res = await API.post(`/admin/activation-requests/${id}/approve`);
       alert(res.data.message || 'Licença aprovada com sucesso!');
       load();
@@ -39,6 +42,7 @@ export default function ActivationRequests() {
     if (!window.confirm('Tem a certeza que quer rejeitar este pedido?')) return;
     try {
       setLoading(true);
+      // CORRECAO: endpoint correto do servidor
       await API.post(`/admin/activation-requests/${id}/reject`);
       load();
     } catch (e) {
@@ -114,7 +118,21 @@ export default function ActivationRequests() {
                     <td style={{ padding: '12px 16px', fontSize: 12, color: '#666', fontFamily: 'monospace' }}>
                       {req.machine_id.substring(0, 16)}...
                     </td>
-                    <td style={{ padding: '12px 16px' }}>{req.plan}</td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span style={{
+                        padding: '2px 8px',
+                        borderRadius: 4,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        background: req.plan === 'enterprise' ? '#f3e5f5' :
+                                   req.plan === 'pro' ? '#fff3e0' : '#e3f2fd',
+                        color: req.plan === 'enterprise' ? '#7b1fa2' :
+                               req.plan === 'pro' ? '#ef6c00' : '#1565c0',
+                        textTransform: 'uppercase',
+                      }}>
+                        {req.plan}
+                      </span>
+                    </td>
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{
                         padding: '4px 10px',
@@ -166,7 +184,14 @@ export default function ActivationRequests() {
                         </div>
                       )}
                       {req.status === 'approved' && (
-                        <span style={{ fontSize: 12, color: '#4caf50' }}>✓ Enviado por email</span>
+                        <div>
+                          <span style={{ fontSize: 12, color: '#4caf50' }}>✓ Aprovado</span>
+                          {req.license_id && (
+                            <div style={{ fontSize: 11, color: '#666', marginTop: 4, fontFamily: 'monospace' }}>
+                              Licença: {req.license_id.substring(0, 12)}...
+                            </div>
+                          )}
+                        </div>
                       )}
                       {req.status === 'rejected' && (
                         <span style={{ fontSize: 12, color: '#f44336' }}>✗ Rejeitado</span>
