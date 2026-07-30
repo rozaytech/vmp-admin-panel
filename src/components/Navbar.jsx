@@ -27,6 +27,10 @@ export default function Navbar() {
         <Link style={styles.link} to="/create-license">
           Criar Licença
         </Link>
+
+        <Link style={styles.link} to="/profile">
+          Perfil
+        </Link>
       </div>
 
       <div style={styles.right}>

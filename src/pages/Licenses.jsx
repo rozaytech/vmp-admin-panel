@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../api/client";
 
-// Planos definidos localmente (sincronizar com vmp_license_server/billing/plans.js)
 const PLANS = {
   basic: {
     code: "basic",
@@ -66,6 +65,8 @@ export default function Licenses() {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [transferModal, setTransferModal] = useState(null);
+  const [editModal, setEditModal] = useState(null);
+  const [reactivateModal, setReactivateModal] = useState(null);
 
   useEffect(() => {
     load();
@@ -92,6 +93,66 @@ export default function Licenses() {
     API.post(`/licenses/revoke/${id}`, { reason: "manual_admin" }).then(() => {
       load();
     });
+  }
+
+  function reactivate(license) {
+    setReactivateModal(license);
+  }
+
+  async function doReactivate() {
+    if (!reactivateModal) return;
+    const days = document.getElementById("reactivateDays").value;
+    const machineId = document.getElementById("reactivateMachineId").value.trim();
+
+    try {
+      const res = await API.post(`/licenses/reactivate/${reactivateModal.id}`, {
+        days: days ? parseInt(days) : null,
+        machineId: machineId || null,
+      });
+
+      alert(
+        `Licenca reativada com sucesso!\nNova validade: ${new Date(res.data.newExpiry).toLocaleDateString("pt-PT")}\nDias: ${res.data.days}`
+      );
+      setReactivateModal(null);
+      load();
+    } catch (e) {
+      alert("Erro: " + (e.response?.data?.details || e.message));
+    }
+  }
+
+  function openEdit(license) {
+    setEditModal({ ...license });
+  }
+
+  async function doEdit() {
+    if (!editModal) return;
+
+    const payload = {};
+    const plan = document.getElementById("editPlan").value;
+    const status = document.getElementById("editStatus").value;
+    const expiry = document.getElementById("editExpiry").value;
+    const client = document.getElementById("editClient").value.trim();
+    const machineId = document.getElementById("editMachineId").value.trim();
+
+    if (plan !== editModal.plan) payload.plan = plan;
+    if (status !== editModal.status) payload.status = status;
+    if (expiry) payload.expiry = new Date(expiry).toISOString();
+    if (client !== editModal.client) payload.client = client;
+    if (machineId !== editModal.machine_id) payload.machineId = machineId;
+
+    if (Object.keys(payload).length === 0) {
+      alert("Nenhuma alteracao feita");
+      return;
+    }
+
+    try {
+      await API.put(`/licenses/${editModal.id}`, payload);
+      alert("Licenca atualizada com sucesso");
+      setEditModal(null);
+      load();
+    } catch (e) {
+      alert("Erro: " + (e.response?.data?.details || e.message));
+    }
   }
 
   function openTransfer(license) {
@@ -140,6 +201,13 @@ export default function Licenses() {
     active: "#4caf50",
     revoked: "#f44336",
     expired: "#ff9800",
+  };
+
+  const statusLabels = {
+    active: "Ativa",
+    revoked: "Revogada",
+    expired: "Expirada",
+    trial: "Trial",
   };
 
   return (
@@ -235,6 +303,7 @@ export default function Licenses() {
               {filtered.map((l) => {
                 const status = l.computed_status || l.status;
                 const isExpired = status === "expired";
+                const isRevoked = status === "revoked";
                 const daysLeft = Math.ceil(
                   (new Date(l.expiry) - new Date()) / (1000 * 60 * 60 * 24)
                 );
@@ -276,7 +345,7 @@ export default function Licenses() {
                       </span>
                       <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>
                         {PLANS[l.plan]?.price?.toLocaleString("pt-PT")} MZN
-                        {l.plan === "enterprise" ? "/ano" : "/mês"}
+                        {l.plan === "enterprise" ? "/ano" : "/mes"}
                       </div>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
@@ -292,11 +361,7 @@ export default function Licenses() {
                           color: statusColors[status] || "#666",
                         }}
                       >
-                        {status === "active" && !isExpired
-                          ? "Ativa"
-                          : status === "revoked"
-                          ? "Revogada"
-                          : "Expirada"}
+                        {statusLabels[status] || status}
                         {status === "active" && daysLeft <= 7 && (
                           <span style={{ marginLeft: 6, fontSize: 11 }}>
                             ({daysLeft}d)
@@ -337,7 +402,22 @@ export default function Licenses() {
                       {l.machine_id?.substring(0, 20)}...
                     </td>
                     <td style={{ padding: "12px 16px" }}>
-                      <div style={{ display: "flex", gap: 8 }}>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button
+                          onClick={() => openEdit(l)}
+                          title="Editar licenca"
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 6,
+                            border: "1px solid #1976d2",
+                            background: "#fff",
+                            color: "#1976d2",
+                            cursor: "pointer",
+                            fontSize: 12,
+                          }}
+                        >
+                          Editar
+                        </button>
                         <button
                           onClick={() => openTransfer(l)}
                           title="Transferir para outro computador"
@@ -367,6 +447,22 @@ export default function Licenses() {
                             }}
                           >
                             Revogar
+                          </button>
+                        )}
+                        {isRevoked && (
+                          <button
+                            onClick={() => reactivate(l)}
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: 6,
+                              border: "1px solid #4caf50",
+                              background: "#fff",
+                              color: "#4caf50",
+                              cursor: "pointer",
+                              fontSize: 12,
+                            }}
+                          >
+                            Reativar
                           </button>
                         )}
                       </div>
@@ -412,7 +508,7 @@ export default function Licenses() {
               <br />
               Preco: <strong>
                 {PLANS[transferModal.plan]?.price?.toLocaleString("pt-PT")} MZN
-                {transferModal.plan === "enterprise" ? "/ano" : "/mês"}
+                {transferModal.plan === "enterprise" ? "/ano" : "/mes"}
               </strong>
               <br />
               Dias restantes:{" "}
@@ -468,6 +564,267 @@ export default function Licenses() {
                 }}
               >
                 Confirmar Transferencia
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Reativacao */}
+      {reactivateModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 12,
+              padding: 32,
+              width: 420,
+              maxWidth: "90%",
+            }}
+          >
+            <h3 style={{ margin: "0 0 8px" }}>Reativar Licenca</h3>
+            <p style={{ color: "#666", fontSize: 14, marginBottom: 20 }}>
+              Cliente: <strong>{reactivateModal.client}</strong>
+              <br />
+              Plano: <strong>{reactivateModal.plan}</strong>
+              <br />
+              Machine ID actual: <strong style={{ fontFamily: "monospace", fontSize: 12 }}>
+                {reactivateModal.machine_id}
+              </strong>
+            </p>
+
+            <label style={{ fontSize: 14, fontWeight: 500 }}>
+              Novo Machine ID (deixe em branco para manter o actual):
+            </label>
+            <input
+              id="reactivateMachineId"
+              type="text"
+              placeholder={reactivateModal.machine_id}
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                marginTop: 8,
+                marginBottom: 16,
+                borderRadius: 8,
+                border: "1px solid #ddd",
+                fontSize: 14,
+                fontFamily: "monospace",
+              }}
+            />
+
+            <label style={{ fontSize: 14, fontWeight: 500 }}>
+              Dias de validade (deixe em branco para usar o padrao do plano):
+            </label>
+            <input
+              id="reactivateDays"
+              type="number"
+              placeholder={PLANS[reactivateModal.plan]?.days || 30}
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                marginTop: 8,
+                marginBottom: 20,
+                borderRadius: 8,
+                border: "1px solid #ddd",
+                fontSize: 14,
+              }}
+            />
+
+            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setReactivateModal(null)}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 8,
+                  border: "1px solid #ddd",
+                  background: "#fff",
+                  cursor: "pointer",
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={doReactivate}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: "#4caf50",
+                  color: "#fff",
+                  cursor: "pointer",
+                }}
+              >
+                Reativar Licenca
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Edicao */}
+      {editModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 12,
+              padding: 32,
+              width: 460,
+              maxWidth: "90%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+            }}
+          >
+            <h3 style={{ margin: "0 0 20px" }}>Editar Licenca</h3>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 14, fontWeight: 500, display: "block", marginBottom: 6 }}>
+                Cliente / Email:
+              </label>
+              <input
+                id="editClient"
+                type="text"
+                defaultValue={editModal.client}
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #ddd",
+                  fontSize: 14,
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 14, fontWeight: 500, display: "block", marginBottom: 6 }}>
+                Plano:
+              </label>
+              <select
+                id="editPlan"
+                defaultValue={editModal.plan}
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #ddd",
+                  fontSize: 14,
+                }}
+              >
+                <option value="basic">Basic (3.500 MZN/mes)</option>
+                <option value="pro">Pro (7.000 MZN/mes)</option>
+                <option value="enterprise">Enterprise (150.000 MZN/ano)</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 14, fontWeight: 500, display: "block", marginBottom: 6 }}>
+                Estado:
+              </label>
+              <select
+                id="editStatus"
+                defaultValue={editModal.status}
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #ddd",
+                  fontSize: 14,
+                }}
+              >
+                <option value="active">Ativa</option>
+                <option value="revoked">Revogada</option>
+                <option value="expired">Expirada</option>
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 14, fontWeight: 500, display: "block", marginBottom: 6 }}>
+                Data de expiracao:
+              </label>
+              <input
+                id="editExpiry"
+                type="datetime-local"
+                defaultValue={editModal.expiry?.slice(0, 16)}
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #ddd",
+                  fontSize: 14,
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ fontSize: 14, fontWeight: 500, display: "block", marginBottom: 6 }}>
+                Machine ID:
+              </label>
+              <input
+                id="editMachineId"
+                type="text"
+                defaultValue={editModal.machine_id}
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #ddd",
+                  fontSize: 14,
+                  fontFamily: "monospace",
+                }}
+              />
+            </div>
+
+            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setEditModal(null)}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 8,
+                  border: "1px solid #ddd",
+                  background: "#fff",
+                  cursor: "pointer",
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={doEdit}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: "#1976d2",
+                  color: "#fff",
+                  cursor: "pointer",
+                }}
+              >
+                Guardar Alteracoes
               </button>
             </div>
           </div>
