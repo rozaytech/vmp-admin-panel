@@ -23,14 +23,13 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-        <p style={{ color: '#666' }}>A carregar...</p>
+        <p style={{ color: '#b0b3b8' }}>A carregar...</p>
       </div>
     );
   }
 
-  if (!stats) return <p>Erro ao carregar dados</p>;
+  if (!stats) return <p style={{ color: '#ef5350' }}>Erro ao carregar dados</p>;
 
-  // CORRIGIDO: MZN em vez de €
   const statCards = [
     { label: 'Total Licenças', value: stats.stats.totalLicenses, icon: '🔑', color: '#1976d2' },
     { label: 'Licenças Ativas', value: stats.stats.activeLicenses, icon: '✅', color: '#4caf50' },
@@ -42,7 +41,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h1 style={{ margin: '0 0 24px', fontSize: 28, fontWeight: 600, color: '#333' }}>Dashboard</h1>
+      <h1 style={{ margin: '0 0 24px', fontSize: 28, fontWeight: 600, color: '#f0f6fc' }}>Dashboard</h1>
 
       <div style={{
         display: 'grid',
@@ -53,16 +52,16 @@ export default function Dashboard() {
           <div
             key={card.label}
             style={{
-              background: '#fff',
+              background: '#151b2e',
               borderRadius: 12,
               padding: 24,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
               borderLeft: `4px solid ${card.color}`,
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
               <span style={{ fontSize: 24, marginRight: 12 }}>{card.icon}</span>
-              <span style={{ color: '#666', fontSize: 14 }}>{card.label}</span>
+              <span style={{ color: '#b0b3b8', fontSize: 14 }}>{card.label}</span>
             </div>
             <div style={{ fontSize: 32, fontWeight: 'bold', color: card.color }}>
               {card.value}
@@ -72,15 +71,15 @@ export default function Dashboard() {
       </div>
 
       <div style={{ marginTop: 32, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-        <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 18 }}>Pedidos Recentes</h3>
+        <div style={{ background: '#151b2e', borderRadius: 12, padding: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
+          <h3 style={{ margin: '0 0 16px', fontSize: 18, color: '#f0f6fc' }}>Pedidos Recentes</h3>
           {stats.recentRequests.length === 0 ? (
-            <p style={{ color: '#888' }}>Sem pedidos recentes</p>
+            <p style={{ color: '#b0b3b8' }}>Sem pedidos recentes</p>
           ) : (
             stats.recentRequests.map((r) => (
-              <div key={r.id} style={{ padding: 12, marginBottom: 8, background: '#f8f9fa', borderRadius: 8 }}>
-                <div style={{ fontWeight: 500, fontSize: 14 }}>{r.client_email}</div>
-                <div style={{ fontSize: 12, color: '#888' }}>
+              <div key={r.id} style={{ padding: 12, marginBottom: 8, background: '#0d1117', borderRadius: 8 }}>
+                <div style={{ fontWeight: 500, fontSize: 14, color: '#f0f6fc' }}>{r.client_email}</div>
+                <div style={{ fontSize: 12, color: '#b0b3b8' }}>
                   {r.plan} • {new Date(r.created_at).toLocaleDateString('pt-PT')}
                 </div>
               </div>
@@ -88,26 +87,26 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 18 }}>Subscrições Recentes</h3>
+        <div style={{ background: '#151b2e', borderRadius: 12, padding: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
+          <h3 style={{ margin: '0 0 16px', fontSize: 18, color: '#f0f6fc' }}>Subscrições Recentes</h3>
           {stats.recentSubscriptions.length === 0 ? (
-            <p style={{ color: '#888' }}>Sem subscrições recentes</p>
+            <p style={{ color: '#b0b3b8' }}>Sem subscrições recentes</p>
           ) : (
             stats.recentSubscriptions.map((s) => (
-              <div key={s.id} style={{ padding: 12, marginBottom: 8, background: '#f8f9fa', borderRadius: 8 }}>
+              <div key={s.id} style={{ padding: 12, marginBottom: 8, background: '#0d1117', borderRadius: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontWeight: 500 }}>{s.client}</span>
+                  <span style={{ fontWeight: 500, color: '#f0f6fc' }}>{s.client}</span>
                   <span style={{
                     padding: '4px 12px',
                     borderRadius: 12,
                     fontSize: 12,
-                    background: s.status === 'active' ? '#e8f5e9' : s.status === 'trial' ? '#fff3e0' : '#ffebee',
-                    color: s.status === 'active' ? '#2e7d32' : s.status === 'trial' ? '#e65100' : '#c62828',
+                    background: s.status === 'active' ? 'rgba(46, 125, 50, 0.2)' : s.status === 'trial' ? 'rgba(255, 152, 0, 0.2)' : 'rgba(198, 40, 40, 0.2)',
+                    color: s.status === 'active' ? '#81c784' : s.status === 'trial' ? '#ffb74d' : '#ef5350',
                   }}>
                     {s.status}
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
+                <div style={{ fontSize: 12, color: '#b0b3b8', marginTop: 4 }}>
                   {s.plan} • {new Date(s.expiry_date).toLocaleDateString('pt-PT')}
                 </div>
               </div>
