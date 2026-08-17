@@ -10,7 +10,7 @@ const PLANS = {
     maxUsers: 2,
     maxProducts: 500,
     features: ["pos", "inventory", "cash_register", "basic_reports", "z_report"],
-    description: "Ideal para pequenos negocios e bancas",
+    description: "Ideal para pequenos negócios e bancas",
   },
   pro: {
     code: "pro",
@@ -88,11 +88,35 @@ export default function Licenses() {
   }
 
   function revoke(id) {
-    if (!confirm("Tem certeza que deseja revogar esta licenca?")) return;
+    if (!confirm("Tem a certeza que deseja revogar esta licença?")) return;
 
     API.post(`/licenses/revoke/${id}`, { reason: "manual_admin" }).then(() => {
       load();
     });
+  }
+
+  async function deleteLicense(id) {
+    if (!confirm("Tem a certeza que deseja apagar permanentemente esta licença?")) return;
+
+    try {
+      await API.delete(`/licenses/${id}`);
+      alert("Licença apagada com sucesso!");
+      load();
+    } catch (e) {
+      alert("Erro: " + (e.response?.data?.details || e.message));
+    }
+  }
+
+  async function markAsPaid(license) {
+    if (!confirm(`Deseja marcar a licença de ${license.client} como PAGA e convertê-la numa subscrição?`)) return;
+
+    try {
+      await API.post("/licenses/pay", { licenseId: license.id });
+      alert("Licença marcada como paga e convertida em subscrição com sucesso!");
+      load();
+    } catch (e) {
+      alert("Erro: " + (e.response?.data?.details || e.message));
+    }
   }
 
   function reactivate(license) {
@@ -111,7 +135,7 @@ export default function Licenses() {
       });
 
       alert(
-        `Licenca reativada com sucesso!\nNova validade: ${new Date(res.data.newExpiry).toLocaleDateString("pt-PT")}\nDias: ${res.data.days}`
+        `Licença reativada com sucesso!\nNova validade: ${new Date(res.data.newExpiry).toLocaleDateString("pt-PT")}\nDias: ${res.data.days}`
       );
       setReactivateModal(null);
       load();
@@ -141,13 +165,13 @@ export default function Licenses() {
     if (machineId !== editModal.machine_id) payload.machineId = machineId;
 
     if (Object.keys(payload).length === 0) {
-      alert("Nenhuma alteracao feita");
+      alert("Nenhuma alteração feita");
       return;
     }
 
     try {
       await API.put(`/licenses/${editModal.id}`, payload);
-      alert("Licenca atualizada com sucesso");
+      alert("Licença atualizada com sucesso");
       setEditModal(null);
       load();
     } catch (e) {
@@ -176,7 +200,7 @@ export default function Licenses() {
       });
 
       alert(
-        `Licenca transferida com sucesso!\nDias transferidos: ${res.data.daysTransferred}\nNova validade: ${new Date(res.data.newExpiry).toLocaleDateString("pt-PT")}`
+        `Licença transferida com sucesso!\nDias transferidos: ${res.data.daysTransferred}\nNova validade: ${new Date(res.data.newExpiry).toLocaleDateString("pt-PT")}`
       );
       setTransferModal(null);
       load();
@@ -213,7 +237,7 @@ export default function Licenses() {
   return (
     <div style={{ padding: 24 }}>
       <h1 style={{ margin: "0 0 24px", fontSize: 28, fontWeight: 600 }}>
-        Licencas
+        Licenças
       </h1>
 
       {/* Filtros e busca */}
@@ -271,7 +295,7 @@ export default function Licenses() {
       {loading ? (
         <p>A carregar...</p>
       ) : filtered.length === 0 ? (
-        <p style={{ color: "#888" }}>Nenhuma licenca encontrada.</p>
+        <p style={{ color: "#888" }}>Nenhuma licença encontrada.</p>
       ) : (
         <div
           style={{
@@ -296,7 +320,7 @@ export default function Licenses() {
                 <th style={{ textAlign: "left", padding: "14px 16px" }}>Pagamento</th>
                 <th style={{ textAlign: "left", padding: "14px 16px" }}>Validade</th>
                 <th style={{ textAlign: "left", padding: "14px 16px" }}>Machine ID</th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>Acoes</th>
+                <th style={{ textAlign: "left", padding: "14px 16px" }}>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -345,7 +369,7 @@ export default function Licenses() {
                       </span>
                       <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>
                         {PLANS[l.plan]?.price?.toLocaleString("pt-PT")} MZN
-                        {l.plan === "enterprise" ? "/ano" : "/mes"}
+                        {l.plan === "enterprise" ? "/ano" : "/mês"}
                       </div>
                     </td>
                     <td style={{ padding: "12px 16px" }}>
@@ -405,7 +429,7 @@ export default function Licenses() {
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                         <button
                           onClick={() => openEdit(l)}
-                          title="Editar licenca"
+                          title="Editar licença"
                           style={{
                             padding: "6px 12px",
                             borderRadius: 6,
@@ -434,20 +458,37 @@ export default function Licenses() {
                           Transferir
                         </button>
                         {status === "active" && (
-                          <button
-                            onClick={() => revoke(l.id)}
-                            style={{
-                              padding: "6px 12px",
-                              borderRadius: 6,
-                              border: "1px solid #f44336",
-                              background: "#fff",
-                              color: "#f44336",
-                              cursor: "pointer",
-                              fontSize: 12,
-                            }}
-                          >
-                            Revogar
-                          </button>
+                          <>
+                            <button
+                              onClick={() => markAsPaid(l)}
+                              title="Marcar como paga e converter em subscrição"
+                              style={{
+                                padding: "6px 12px",
+                                borderRadius: 6,
+                                border: "1px solid #009688",
+                                background: "#fff",
+                                color: "#009688",
+                                cursor: "pointer",
+                                fontSize: 12,
+                              }}
+                            >
+                              Marcar como Pago
+                            </button>
+                            <button
+                              onClick={() => revoke(l.id)}
+                              style={{
+                                padding: "6px 12px",
+                                borderRadius: 6,
+                                border: "1px solid #f44336",
+                                background: "#fff",
+                                color: "#f44336",
+                                cursor: "pointer",
+                                fontSize: 12,
+                              }}
+                            >
+                              Revogar
+                            </button>
+                          </>
                         )}
                         {isRevoked && (
                           <button
@@ -465,6 +506,21 @@ export default function Licenses() {
                             Reativar
                           </button>
                         )}
+                        <button
+                          onClick={() => deleteLicense(l.id)}
+                          title="Apagar permanentemente"
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 6,
+                            border: "1px solid #9e9e9e",
+                            background: "#fff",
+                            color: "#9e9e9e",
+                            cursor: "pointer",
+                            fontSize: 12,
+                          }}
+                        >
+                          Apagar
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -475,7 +531,7 @@ export default function Licenses() {
         </div>
       )}
 
-      {/* Modal de Transferencia */}
+      {/* Modal de Transferência */}
       {transferModal && (
         <div
           style={{
@@ -500,15 +556,15 @@ export default function Licenses() {
               maxWidth: "90%",
             }}
           >
-            <h3 style={{ margin: "0 0 8px" }}>Transferir Licenca</h3>
+            <h3 style={{ margin: "0 0 8px" }}>Transferir Licença</h3>
             <p style={{ color: "#666", fontSize: 14, marginBottom: 20 }}>
               Cliente: <strong>{transferModal.client}</strong>
               <br />
               Plano: <strong>{transferModal.plan}</strong>
               <br />
-              Preco: <strong>
+              Preço: <strong>
                 {PLANS[transferModal.plan]?.price?.toLocaleString("pt-PT")} MZN
-                {transferModal.plan === "enterprise" ? "/ano" : "/mes"}
+                {transferModal.plan === "enterprise" ? "/ano" : "/mês"}
               </strong>
               <br />
               Dias restantes:{" "}
@@ -563,14 +619,14 @@ export default function Licenses() {
                   cursor: "pointer",
                 }}
               >
-                Confirmar Transferencia
+                Confirmar Transferência
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal de Reativacao */}
+      {/* Modal de Reativação */}
       {reactivateModal && (
         <div
           style={{
@@ -595,7 +651,7 @@ export default function Licenses() {
               maxWidth: "90%",
             }}
           >
-            <h3 style={{ margin: "0 0 8px" }}>Reativar Licenca</h3>
+            <h3 style={{ margin: "0 0 8px" }}>Reativar Licença</h3>
             <p style={{ color: "#666", fontSize: 14, marginBottom: 20 }}>
               Cliente: <strong>{reactivateModal.client}</strong>
               <br />
@@ -626,7 +682,7 @@ export default function Licenses() {
             />
 
             <label style={{ fontSize: 14, fontWeight: 500 }}>
-              Dias de validade (deixe em branco para usar o padrao do plano):
+              Dias de validade (deixe em branco para usar o padrão do plano):
             </label>
             <input
               id="reactivateDays"
@@ -667,14 +723,14 @@ export default function Licenses() {
                   cursor: "pointer",
                 }}
               >
-                Reativar Licenca
+                Reativar Licença
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal de Edicao */}
+      {/* Modal de Edição */}
       {editModal && (
         <div
           style={{
@@ -701,7 +757,7 @@ export default function Licenses() {
               overflowY: "auto",
             }}
           >
-            <h3 style={{ margin: "0 0 20px" }}>Editar Licenca</h3>
+            <h3 style={{ margin: "0 0 20px" }}>Editar Licença</h3>
 
             <div style={{ marginBottom: 16 }}>
               <label style={{ fontSize: 14, fontWeight: 500, display: "block", marginBottom: 6 }}>
@@ -736,8 +792,8 @@ export default function Licenses() {
                   fontSize: 14,
                 }}
               >
-                <option value="basic">Basic (3.500 MZN/mes)</option>
-                <option value="pro">Pro (7.000 MZN/mes)</option>
+                <option value="basic">Basic (3.500 MZN/mês)</option>
+                <option value="pro">Pro (7.000 MZN/mês)</option>
                 <option value="enterprise">Enterprise (150.000 MZN/ano)</option>
               </select>
             </div>
@@ -765,7 +821,7 @@ export default function Licenses() {
 
             <div style={{ marginBottom: 16 }}>
               <label style={{ fontSize: 14, fontWeight: 500, display: "block", marginBottom: 6 }}>
-                Data de expiracao:
+                Data de expiração:
               </label>
               <input
                 id="editExpiry"
@@ -824,7 +880,7 @@ export default function Licenses() {
                   cursor: "pointer",
                 }}
               >
-                Guardar Alteracoes
+                Guardar Alterações
               </button>
             </div>
           </div>

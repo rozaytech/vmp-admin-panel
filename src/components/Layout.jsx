@@ -1,5 +1,6 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
+import Navbar from './Navbar';
 
 const menuItems = [
   { path: '/', label: 'Dashboard', icon: '📊' },
@@ -12,15 +13,7 @@ const menuItems = [
 ];
 
 export default function Layout() {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
-
-  const handleLogout = () => {
-    localStorage.removeItem('vmp_admin_token');
-    localStorage.removeItem('vmp_role');
-    // CORRIGIDO: window.location força reload
-    window.location.href = '/login';
-  };
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Segoe UI, sans-serif' }}>
@@ -36,7 +29,7 @@ export default function Layout() {
       }}>
         <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
           <h2 style={{ margin: 0, fontSize: 22, fontWeight: 'bold' }}>VMP SaaS</h2>
-          <p style={{ margin: '4px 0 0', fontSize: 12, opacity: 0.7 }}>Painel de Admin</p>
+          <p style={{ margin: '4px 0 0', fontSize: 12, opacity: 0.7 }}>Painel de Administração</p>
         </div>
 
         <nav style={{ padding: '16px 0' }}>
@@ -64,31 +57,6 @@ export default function Layout() {
             );
           })}
         </nav>
-
-        <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: 20,
-          borderTop: '1px solid rgba(255,255,255,0.1)',
-        }}>
-          <button
-            onClick={handleLogout}
-            style={{
-              width: '100%',
-              padding: '10px',
-              background: 'rgba(255,255,255,0.1)',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.2)',
-              borderRadius: 6,
-              cursor: 'pointer',
-              fontSize: 14,
-            }}
-          >
-            🚪 Sair
-          </button>
-        </div>
       </aside>
 
       {/* Main content */}
@@ -98,6 +66,7 @@ export default function Layout() {
         background: '#f5f5f5',
         minHeight: '100vh',
       }}>
+        <Navbar />
         <div style={{ padding: 32 }}>
           <Outlet />
         </div>
