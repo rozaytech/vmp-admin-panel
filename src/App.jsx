@@ -38,6 +38,25 @@ const darkTheme = createTheme({
         },
       },
     },
+    // CORREÇÃO DA OPACIDADE: Força o fundo escuro nos cartões das outras telas
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#151b2e',
+          color: '#f0f6fc',
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#151b2e',
+          color: '#f0f6fc',
+          backgroundImage: 'none',
+        },
+      },
+    },
   },
 });
 
