@@ -89,7 +89,6 @@ export default function Licenses() {
 
   function revoke(id) {
     if (!confirm("Tem a certeza que deseja revogar esta licença?")) return;
-
     API.post(`/licenses/revoke/${id}`, { reason: "manual_admin" }).then(() => {
       load();
     });
@@ -97,7 +96,6 @@ export default function Licenses() {
 
   async function deleteLicense(id) {
     if (!confirm("Tem a certeza que deseja apagar permanentemente esta licença?")) return;
-
     try {
       await API.delete(`/licenses/${id}`);
       alert("Licença apagada com sucesso!");
@@ -109,7 +107,6 @@ export default function Licenses() {
 
   async function markAsPaid(license) {
     if (!confirm(`Deseja marcar a licença de ${license.client} como PAGA e convertê-la numa subscrição?`)) return;
-
     try {
       await API.post("/licenses/pay", { licenseId: license.id });
       alert("Licença marcada como paga e convertida em subscrição com sucesso!");
@@ -127,13 +124,11 @@ export default function Licenses() {
     if (!reactivateModal) return;
     const days = document.getElementById("reactivateDays").value;
     const machineId = document.getElementById("reactivateMachineId").value.trim();
-
     try {
       const res = await API.post(`/licenses/reactivate/${reactivateModal.id}`, {
         days: days ? parseInt(days) : null,
         machineId: machineId || null,
       });
-
       alert(
         `Licença reativada com sucesso!\nNova validade: ${new Date(res.data.newExpiry).toLocaleDateString("pt-PT")}\nDias: ${res.data.days}`
       );
@@ -150,25 +145,21 @@ export default function Licenses() {
 
   async function doEdit() {
     if (!editModal) return;
-
     const payload = {};
     const plan = document.getElementById("editPlan").value;
     const status = document.getElementById("editStatus").value;
     const expiry = document.getElementById("editExpiry").value;
     const client = document.getElementById("editClient").value.trim();
     const machineId = document.getElementById("editMachineId").value.trim();
-
     if (plan !== editModal.plan) payload.plan = plan;
     if (status !== editModal.status) payload.status = status;
     if (expiry) payload.expiry = new Date(expiry).toISOString();
     if (client !== editModal.client) payload.client = client;
     if (machineId !== editModal.machine_id) payload.machineId = machineId;
-
     if (Object.keys(payload).length === 0) {
       alert("Nenhuma alteração feita");
       return;
     }
-
     try {
       await API.put(`/licenses/${editModal.id}`, payload);
       alert("Licença atualizada com sucesso");
@@ -186,19 +177,16 @@ export default function Licenses() {
   async function doTransfer() {
     if (!transferModal) return;
     const newMachineId = document.getElementById("newMachineId").value.trim();
-
     if (!newMachineId) {
       alert("Digite o novo Machine ID");
       return;
     }
-
     try {
       const res = await API.post("/licenses/transfer", {
         oldLicenseId: transferModal.id,
         newMachineId,
         reason: "computer_replaced",
       });
-
       alert(
         `Licença transferida com sucesso!\nDias transferidos: ${res.data.daysTransferred}\nNova validade: ${new Date(res.data.newExpiry).toLocaleDateString("pt-PT")}`
       );
@@ -235,12 +223,11 @@ export default function Licenses() {
   };
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1 style={{ margin: "0 0 24px", fontSize: 28, fontWeight: 600 }}>
+    <div style={{ padding: 24, width: '100%', boxSizing: 'border-box' }}>
+      <h1 style={{ margin: "0 0 24px", fontSize: 28, fontWeight: 600, color: "#f0f6fc" }}>
         Licenças
       </h1>
 
-      {/* Filtros e busca */}
       <div style={{ marginBottom: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
         <input
           type="text"
@@ -251,287 +238,299 @@ export default function Licenses() {
           style={{
             padding: "10px 16px",
             borderRadius: 8,
-            border: "1px solid #ddd",
+            border: "1px solid #30363d",
+            backgroundColor: "#0d1117",
+            color: "#f0f6fc",
             fontSize: 14,
             minWidth: 280,
+            maxWidth: '100%',
+            width: '100%',
           }}
         />
 
-        {["all", "active", "revoked", "expired"].map((s) => (
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          {["all", "active", "revoked", "expired"].map((s) => (
+            <button
+              key={s}
+              onClick={() => setFilter(s)}
+              style={{
+                padding: "10px 20px",
+                borderRadius: 8,
+                border: "none",
+                background: filter === s ? "#1a237e" : "#21262d",
+                color: filter === s ? "#fff" : "#b0b3b8",
+                cursor: "pointer",
+                textTransform: "capitalize",
+                fontSize: 14,
+              }}
+            >
+              {s === "all" ? "Todas" : s}
+            </button>
+          ))}
           <button
-            key={s}
-            onClick={() => setFilter(s)}
+            onClick={load}
             style={{
               padding: "10px 20px",
               borderRadius: 8,
               border: "none",
-              background: filter === s ? "#16213e" : "#e0e0e0",
-              color: filter === s ? "#fff" : "#333",
+              background: "#1a237e",
+              color: "#fff",
               cursor: "pointer",
-              textTransform: "capitalize",
               fontSize: 14,
             }}
           >
-            {s === "all" ? "Todas" : s}
+            Atualizar
           </button>
-        ))}
-
-        <button
-          onClick={load}
-          style={{
-            padding: "10px 20px",
-            borderRadius: 8,
-            border: "none",
-            background: "#1976d2",
-            color: "#fff",
-            cursor: "pointer",
-            fontSize: 14,
-          }}
-        >
-          Atualizar
-        </button>
+        </div>
       </div>
 
       {loading ? (
-        <p>A carregar...</p>
+        <p style={{ color: "#b0b3b8" }}>A carregar...</p>
       ) : filtered.length === 0 ? (
         <p style={{ color: "#888" }}>Nenhuma licença encontrada.</p>
       ) : (
         <div
           style={{
-            background: "#fff",
+            background: "#151b2e",
             borderRadius: 12,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-            overflow: "hidden",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+            width: '100%',
+            overflow: 'hidden',
           }}
         >
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              fontSize: 14,
-            }}
-          >
-            <thead>
-              <tr style={{ background: "#f8f9fa", borderBottom: "2px solid #e0e0e0" }}>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>Cliente</th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>Plano</th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>Estado</th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>Pagamento</th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>Validade</th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>Machine ID</th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((l) => {
-                const status = l.computed_status || l.status;
-                const isExpired = status === "expired";
-                const isRevoked = status === "revoked";
-                const daysLeft = Math.ceil(
-                  (new Date(l.expiry) - new Date()) / (1000 * 60 * 60 * 24)
-                );
+          {/* CORREÇÃO MOBILE: Adicionado overflowX: auto para a tabela rolar lateralmente */}
+          <div style={{ overflowX: 'auto', width: '100%' }}>
+            <table
+              style={{
+                width: "100%",
+                minWidth: '800px', // Garante que os dados não fiquem esmagados no celular
+                borderCollapse: "collapse",
+                fontSize: 14,
+                color: "#f0f6fc",
+              }}
+            >
+              <thead>
+                <tr style={{ background: "#0d1117", borderBottom: "1px solid #21262d" }}>
+                  <th style={{ textAlign: "left", padding: "14px 16px" }}>Cliente</th>
+                  <th style={{ textAlign: "left", padding: "14px 16px" }}>Plano</th>
+                  <th style={{ textAlign: "left", padding: "14px 16px" }}>Estado</th>
+                  <th style={{ textAlign: "left", padding: "14px 16px" }}>Pagamento</th>
+                  <th style={{ textAlign: "left", padding: "14px 16px" }}>Validade</th>
+                  <th style={{ textAlign: "left", padding: "14px 16px" }}>Machine ID</th>
+                  <th style={{ textAlign: "left", padding: "14px 16px" }}>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((l) => {
+                  const status = l.computed_status || l.status;
+                  const isExpired = status === "expired";
+                  const isRevoked = status === "revoked";
+                  const daysLeft = Math.ceil(
+                    (new Date(l.expiry) - new Date()) / (1000 * 60 * 60 * 24)
+                  );
+                  const paymentStatus = l.payment_status || 'pending';
 
-                return (
-                  <tr
-                    key={l.id}
-                    style={{
-                      borderBottom: "1px solid #f0f0f0",
-                      background: isExpired ? "#fff8e1" : undefined,
-                    }}
-                  >
-                    <td style={{ padding: "12px 16px", fontWeight: 500 }}>
-                      {l.client}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <span
-                        style={{
-                          padding: "4px 10px",
-                          borderRadius: 12,
-                          fontSize: 12,
-                          fontWeight: 500,
-                          background:
-                            l.plan === "enterprise"
-                              ? "#e3f2fd"
-                              : l.plan === "pro"
-                              ? "#f3e5f5"
-                              : "#e8f5e9",
-                          color:
-                            l.plan === "enterprise"
-                              ? "#1565c0"
-                              : l.plan === "pro"
-                              ? "#7b1fa2"
-                              : "#2e7d32",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {l.plan}
-                      </span>
-                      <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>
-                        {PLANS[l.plan]?.price?.toLocaleString("pt-PT")} MZN
-                        {l.plan === "enterprise" ? "/ano" : "/mês"}
-                      </div>
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <span
-                        style={{
-                          padding: "4px 10px",
-                          borderRadius: 12,
-                          fontSize: 12,
-                          fontWeight: 500,
-                          background: statusColors[status]
-                            ? `${statusColors[status]}15`
-                            : "#f5f5f5",
-                          color: statusColors[status] || "#666",
-                        }}
-                      >
-                        {statusLabels[status] || status}
-                        {status === "active" && daysLeft <= 7 && (
-                          <span style={{ marginLeft: 6, fontSize: 11 }}>
-                            ({daysLeft}d)
-                          </span>
-                        )}
-                      </span>
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <span
-                        style={{
-                          padding: "4px 10px",
-                          borderRadius: 12,
-                          fontSize: 12,
-                          background:
-                            l.payment_status === "paid" ? "#e8f5e9" : "#fff3e0",
-                          color:
-                            l.payment_status === "paid" ? "#2e7d32" : "#e65100",
-                        }}
-                      >
-                        {l.payment_status === "paid" ? "Pago" : "Pendente"}
-                      </span>
-                    </td>
-                    <td style={{ padding: "12px 16px", color: "#666", fontSize: 13 }}>
-                      {new Date(l.expiry).toLocaleDateString("pt-PT")}
-                    </td>
-                    <td
+                  return (
+                    <tr
+                      key={l.id}
                       style={{
-                        padding: "12px 16px",
-                        fontSize: 12,
-                        color: "#666",
-                        fontFamily: "monospace",
-                        maxWidth: 150,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                        borderBottom: "1px solid #21262d",
+                        background: isExpired ? "rgba(255, 152, 0, 0.1)" : "transparent",
                       }}
-                      title={l.machine_id}
                     >
-                      {l.machine_id?.substring(0, 20)}...
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                        <button
-                          onClick={() => openEdit(l)}
-                          title="Editar licença"
+                      <td style={{ padding: "12px 16px", fontWeight: 500 }}>
+                        {l.client}
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        <span
                           style={{
-                            padding: "6px 12px",
-                            borderRadius: 6,
-                            border: "1px solid #1976d2",
-                            background: "#fff",
-                            color: "#1976d2",
-                            cursor: "pointer",
+                            padding: "4px 10px",
+                            borderRadius: 12,
                             fontSize: 12,
+                            fontWeight: 500,
+                            background:
+                              l.plan === "enterprise"
+                                ? "rgba(21, 101, 192, 0.2)"
+                                : l.plan === "pro"
+                                ? "rgba(123, 31, 162, 0.2)"
+                                : "rgba(46, 125, 50, 0.2)",
+                          color:
+                            l.plan === "enterprise"
+                              ? "#4fc3f7"
+                              : l.plan === "pro"
+                              ? "#ce93d8"
+                              : "#81c784",
+                            textTransform: "uppercase",
                           }}
                         >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => openTransfer(l)}
-                          title="Transferir para outro computador"
+                          {l.plan}
+                        </span>
+                        <div style={{ fontSize: 11, color: "#b0b3b8", marginTop: 4 }}>
+                          {PLANS[l.plan]?.price?.toLocaleString("pt-PT")} MZN
+                          {l.plan === "enterprise" ? "/ano" : "/mês"}
+                        </div>
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        <span
                           style={{
-                            padding: "6px 12px",
-                            borderRadius: 6,
-                            border: "1px solid #1976d2",
-                            background: "#fff",
-                            color: "#1976d2",
-                            cursor: "pointer",
+                            padding: "4px 10px",
+                            borderRadius: 12,
                             fontSize: 12,
+                            fontWeight: 500,
+                            background: statusColors[status]
+                              ? `${statusColors[status]}25`
+                              : "rgba(255,255,255,0.1)",
+                            color: statusColors[status] || "#b0b3b8",
                           }}
                         >
-                          Transferir
-                        </button>
-                        {status === "active" && (
-                          <>
-                            <button
-                              onClick={() => markAsPaid(l)}
-                              title="Marcar como paga e converter em subscrição"
-                              style={{
-                                padding: "6px 12px",
-                                borderRadius: 6,
-                                border: "1px solid #009688",
-                                background: "#fff",
-                                color: "#009688",
-                                cursor: "pointer",
-                                fontSize: 12,
-                              }}
-                            >
-                              Marcar como Pago
-                            </button>
-                            <button
-                              onClick={() => revoke(l.id)}
-                              style={{
-                                padding: "6px 12px",
-                                borderRadius: 6,
-                                border: "1px solid #f44336",
-                                background: "#fff",
-                                color: "#f44336",
-                                cursor: "pointer",
-                                fontSize: 12,
-                              }}
-                            >
-                              Revogar
-                            </button>
-                          </>
-                        )}
-                        {isRevoked && (
+                          {statusLabels[status] || status}
+                          {status === "active" && daysLeft <= 7 && (
+                            <span style={{ marginLeft: 6, fontSize: 11 }}>
+                              ({daysLeft}d)
+                            </span>
+                          )}
+                        </span>
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        <span
+                          style={{
+                            padding: "4px 10px",
+                            borderRadius: 12,
+                            fontSize: 12,
+                            background:
+                              paymentStatus === "paid" ? "rgba(46, 125, 50, 0.2)" : "rgba(230, 81, 0, 0.2)",
+                            color:
+                              paymentStatus === "paid" ? "#81c784" : "#ffb74d",
+                          }}
+                        >
+                          {paymentStatus === "paid" ? "Pago" : "Pendente"}
+                        </span>
+                      </td>
+                      <td style={{ padding: "12px 16px", color: "#b0b3b8", fontSize: 13 }}>
+                        {new Date(l.expiry).toLocaleDateString("pt-PT")}
+                      </td>
+                      <td
+                        style={{
+                          padding: "12px 16px",
+                          fontSize: 12,
+                          color: "#b0b3b8",
+                          fontFamily: "monospace",
+                          maxWidth: 150,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                        title={l.machine_id}
+                      >
+                        {l.machine_id?.substring(0, 20)}...
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                           <button
-                            onClick={() => reactivate(l)}
+                            onClick={() => openEdit(l)}
+                            title="Editar licença"
                             style={{
                               padding: "6px 12px",
                               borderRadius: 6,
-                              border: "1px solid #4caf50",
-                              background: "#fff",
-                              color: "#4caf50",
+                              border: "1px solid #4fc3f7",
+                              background: "transparent",
+                              color: "#4fc3f7",
                               cursor: "pointer",
                               fontSize: 12,
                             }}
                           >
-                            Reativar
+                            Editar
                           </button>
-                        )}
-                        <button
-                          onClick={() => deleteLicense(l.id)}
-                          title="Apagar permanentemente"
-                          style={{
-                            padding: "6px 12px",
-                            borderRadius: 6,
-                            border: "1px solid #9e9e9e",
-                            background: "#fff",
-                            color: "#9e9e9e",
-                            cursor: "pointer",
-                            fontSize: 12,
-                          }}
-                        >
-                          Apagar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                          <button
+                            onClick={() => openTransfer(l)}
+                            title="Transferir para outro computador"
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: 6,
+                              border: "1px solid #4fc3f7",
+                              background: "transparent",
+                              color: "#4fc3f7",
+                              cursor: "pointer",
+                              fontSize: 12,
+                            }}
+                          >
+                            Transferir
+                          </button>
+                          {status === "active" && (
+                            <>
+                              <button
+                                onClick={() => markAsPaid(l)}
+                                title="Marcar como paga e converter em subscrição"
+                                style={{
+                                  padding: "6px 12px",
+                                  borderRadius: 6,
+                                  border: "1px solid #009688",
+                                  background: "transparent",
+                                  color: "#4db6ac",
+                                  cursor: "pointer",
+                                  fontSize: 12,
+                                }}
+                              >
+                                Marcar como Pago
+                              </button>
+                              <button
+                                onClick={() => revoke(l.id)}
+                                style={{
+                                  padding: "6px 12px",
+                                  borderRadius: 6,
+                                  border: "1px solid #f44336",
+                                  background: "transparent",
+                                  color: "#ef5350",
+                                  cursor: "pointer",
+                                  fontSize: 12,
+                                }}
+                              >
+                                Revogar
+                              </button>
+                            </>
+                          )}
+                          {isRevoked && (
+                            <button
+                              onClick={() => reactivate(l)}
+                              style={{
+                                padding: "6px 12px",
+                                borderRadius: 6,
+                                border: "1px solid #4caf50",
+                                background: "transparent",
+                                color: "#66bb6a",
+                                cursor: "pointer",
+                                fontSize: 12,
+                              }}
+                            >
+                              Reativar
+                            </button>
+                          )}
+                          <button
+                            onClick={() => deleteLicense(l.id)}
+                            title="Apagar permanentemente"
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: 6,
+                              border: "1px solid #9e9e9e",
+                              background: "transparent",
+                              color: "#b0b3b8",
+                              cursor: "pointer",
+                              fontSize: 12,
+                            }}
+                          >
+                            Apagar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-      {/* Modal de Transferência */}
+      {/* Modais (Mantidos, mas com tema escuro) */}
       {transferModal && (
         <div
           style={{
@@ -540,7 +539,7 @@ export default function Licenses() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: "rgba(0,0,0,0.5)",
+            background: "rgba(0,0,0,0.8)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -549,15 +548,16 @@ export default function Licenses() {
         >
           <div
             style={{
-              background: "#fff",
+              background: "#151b2e",
               borderRadius: 12,
               padding: 32,
               width: 420,
               maxWidth: "90%",
+              color: "#f0f6fc",
             }}
           >
             <h3 style={{ margin: "0 0 8px" }}>Transferir Licença</h3>
-            <p style={{ color: "#666", fontSize: 14, marginBottom: 20 }}>
+            <p style={{ color: "#b0b3b8", fontSize: 14, marginBottom: 20 }}>
               Cliente: <strong>{transferModal.client}</strong>
               <br />
               Plano: <strong>{transferModal.plan}</strong>
@@ -589,7 +589,9 @@ export default function Licenses() {
                 marginTop: 8,
                 marginBottom: 20,
                 borderRadius: 8,
-                border: "1px solid #ddd",
+                border: "1px solid #30363d",
+                background: "#0d1117",
+                color: "#f0f6fc",
                 fontSize: 14,
                 fontFamily: "monospace",
               }}
@@ -601,8 +603,9 @@ export default function Licenses() {
                 style={{
                   padding: "10px 20px",
                   borderRadius: 8,
-                  border: "1px solid #ddd",
-                  background: "#fff",
+                  border: "1px solid #30363d",
+                  background: "transparent",
+                  color: "#f0f6fc",
                   cursor: "pointer",
                 }}
               >
@@ -614,7 +617,7 @@ export default function Licenses() {
                   padding: "10px 20px",
                   borderRadius: 8,
                   border: "none",
-                  background: "#1976d2",
+                  background: "#1a237e",
                   color: "#fff",
                   cursor: "pointer",
                 }}
@@ -626,7 +629,6 @@ export default function Licenses() {
         </div>
       )}
 
-      {/* Modal de Reativação */}
       {reactivateModal && (
         <div
           style={{
@@ -635,7 +637,7 @@ export default function Licenses() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: "rgba(0,0,0,0.5)",
+            background: "rgba(0,0,0,0.8)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -644,15 +646,16 @@ export default function Licenses() {
         >
           <div
             style={{
-              background: "#fff",
+              background: "#151b2e",
               borderRadius: 12,
               padding: 32,
               width: 420,
               maxWidth: "90%",
+              color: "#f0f6fc",
             }}
           >
             <h3 style={{ margin: "0 0 8px" }}>Reativar Licença</h3>
-            <p style={{ color: "#666", fontSize: 14, marginBottom: 20 }}>
+            <p style={{ color: "#b0b3b8", fontSize: 14, marginBottom: 20 }}>
               Cliente: <strong>{reactivateModal.client}</strong>
               <br />
               Plano: <strong>{reactivateModal.plan}</strong>
@@ -675,7 +678,9 @@ export default function Licenses() {
                 marginTop: 8,
                 marginBottom: 16,
                 borderRadius: 8,
-                border: "1px solid #ddd",
+                border: "1px solid #30363d",
+                background: "#0d1117",
+                color: "#f0f6fc",
                 fontSize: 14,
                 fontFamily: "monospace",
               }}
@@ -694,7 +699,9 @@ export default function Licenses() {
                 marginTop: 8,
                 marginBottom: 20,
                 borderRadius: 8,
-                border: "1px solid #ddd",
+                border: "1px solid #30363d",
+                background: "#0d1117",
+                color: "#f0f6fc",
                 fontSize: 14,
               }}
             />
@@ -705,8 +712,9 @@ export default function Licenses() {
                 style={{
                   padding: "10px 20px",
                   borderRadius: 8,
-                  border: "1px solid #ddd",
-                  background: "#fff",
+                  border: "1px solid #30363d",
+                  background: "transparent",
+                  color: "#f0f6fc",
                   cursor: "pointer",
                 }}
               >
@@ -730,7 +738,6 @@ export default function Licenses() {
         </div>
       )}
 
-      {/* Modal de Edição */}
       {editModal && (
         <div
           style={{
@@ -739,7 +746,7 @@ export default function Licenses() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: "rgba(0,0,0,0.5)",
+            background: "rgba(0,0,0,0.8)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -748,13 +755,14 @@ export default function Licenses() {
         >
           <div
             style={{
-              background: "#fff",
+              background: "#151b2e",
               borderRadius: 12,
               padding: 32,
               width: 460,
               maxWidth: "90%",
               maxHeight: "90vh",
               overflowY: "auto",
+              color: "#f0f6fc",
             }}
           >
             <h3 style={{ margin: "0 0 20px" }}>Editar Licença</h3>
@@ -771,7 +779,9 @@ export default function Licenses() {
                   width: "100%",
                   padding: "10px 12px",
                   borderRadius: 8,
-                  border: "1px solid #ddd",
+                  border: "1px solid #30363d",
+                  background: "#0d1117",
+                  color: "#f0f6fc",
                   fontSize: 14,
                 }}
               />
@@ -788,7 +798,9 @@ export default function Licenses() {
                   width: "100%",
                   padding: "10px 12px",
                   borderRadius: 8,
-                  border: "1px solid #ddd",
+                  border: "1px solid #30363d",
+                  background: "#0d1117",
+                  color: "#f0f6fc",
                   fontSize: 14,
                 }}
               >
@@ -809,7 +821,9 @@ export default function Licenses() {
                   width: "100%",
                   padding: "10px 12px",
                   borderRadius: 8,
-                  border: "1px solid #ddd",
+                  border: "1px solid #30363d",
+                  background: "#0d1117",
+                  color: "#f0f6fc",
                   fontSize: 14,
                 }}
               >
@@ -831,7 +845,9 @@ export default function Licenses() {
                   width: "100%",
                   padding: "10px 12px",
                   borderRadius: 8,
-                  border: "1px solid #ddd",
+                  border: "1px solid #30363d",
+                  background: "#0d1117",
+                  color: "#f0f6fc",
                   fontSize: 14,
                 }}
               />
@@ -849,7 +865,9 @@ export default function Licenses() {
                   width: "100%",
                   padding: "10px 12px",
                   borderRadius: 8,
-                  border: "1px solid #ddd",
+                  border: "1px solid #30363d",
+                  background: "#0d1117",
+                  color: "#f0f6fc",
                   fontSize: 14,
                   fontFamily: "monospace",
                 }}
@@ -862,8 +880,9 @@ export default function Licenses() {
                 style={{
                   padding: "10px 20px",
                   borderRadius: 8,
-                  border: "1px solid #ddd",
-                  background: "#fff",
+                  border: "1px solid #30363d",
+                  background: "transparent",
+                  color: "#f0f6fc",
                   cursor: "pointer",
                 }}
               >
@@ -875,7 +894,7 @@ export default function Licenses() {
                   padding: "10px 20px",
                   borderRadius: 8,
                   border: "none",
-                  background: "#1976d2",
+                  background: "#1a237e",
                   color: "#fff",
                   cursor: "pointer",
                 }}
