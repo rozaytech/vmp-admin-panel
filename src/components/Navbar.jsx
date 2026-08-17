@@ -1,12 +1,12 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
-  const navigate = useNavigate();
-
   function logout() {
-    localStorage.removeItem("vmp_token");
+    // REMOVE A CHAVE CORRETA USADA NO App.jsx
+    localStorage.removeItem("vmp_admin_token"); 
     localStorage.removeItem("vmp_admin_role");
-    navigate("/");
+    // FORÇA O RECARREGAMENTO PARA LIMPAR O CONTEXTO DO REACT
+    window.location.href = "/login";
   }
 
   return (
@@ -16,7 +16,7 @@ export default function Navbar() {
       </div>
 
       <div style={styles.center}>
-        <Link style={styles.link} to="/dashboard">
+        <Link style={styles.link} to="/">
           Dashboard
         </Link>
 
@@ -24,18 +24,14 @@ export default function Navbar() {
           Licenças
         </Link>
 
-        <Link style={styles.link} to="/create-license">
+        <Link style={styles.link} to="/licenses/create">
           Criar Licença
-        </Link>
-
-        <Link style={styles.link} to="/profile">
-          Perfil
         </Link>
       </div>
 
       <div style={styles.right}>
         <button onClick={logout} style={styles.button}>
-          Logout
+          Sair
         </button>
       </div>
     </div>
@@ -48,7 +44,8 @@ const styles = {
     justifyContent: "space-between",
     alignItems: "center",
     padding: "12px 20px",
-    backgroundColor: "#111",
+    backgroundColor: "#0d1117",
+    borderBottom: "1px solid #21262d",
     color: "white",
   },
   left: {
@@ -62,9 +59,14 @@ const styles = {
   link: {
     color: "white",
     textDecoration: "none",
+    fontSize: 14,
   },
   button: {
     padding: "6px 12px",
     cursor: "pointer",
+    backgroundColor: "#f03e3e",
+    color: "#fff",
+    border: "none",
+    borderRadius: 4,
   },
 };

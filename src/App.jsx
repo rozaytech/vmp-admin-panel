@@ -12,24 +12,40 @@ import ActivationRequests from './pages/ActivationRequests';
 import Billing from './pages/Billing';
 import EmailLogs from './pages/EmailLogs';
 
-const theme = createTheme({
+// TEMA DARK NAVY
+const darkTheme = createTheme({
   palette: {
-    mode: 'light',
-    primary: { main: '#1976d2' },
-    secondary: { main: '#dc004e' },
-    background: { default: '#f5f5f5', paper: '#fff' },
+    mode: 'dark',
+    primary: { main: '#1a237e' },
+    secondary: { main: '#4fc3f7' },
+    background: { 
+      default: '#0d1117',
+      paper: '#151b2e' 
+    },
+    text: {
+      primary: '#f0f6fc',
+      secondary: '#b0b3b8',
+    },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
   },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+        },
+      },
+    },
+  },
 });
 
 function App() {
-  // CORRIGIDO: verifica vmp_admin_token (não vmp_token)
   const isAuth = localStorage.getItem('vmp_admin_token');
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <BrowserRouter>
         <Routes>
