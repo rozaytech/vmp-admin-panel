@@ -100,20 +100,42 @@ export default function CreateLicense() {
 
   return (
     <div style={{ padding: 40 }}>
-      <h2>Criar Licença</h2>
+      <h2 style={{ margin: "0 0 24px", fontSize: 28, color: "#f0f6fc" }}>Criar Licença</h2>
 
       <input
         placeholder="Machine ID"
         value={machineId}
         onChange={(e) => setMachineId(e.target.value)}
-        style={{ display: "block", marginBottom: 10, padding: 8, width: '100%' }}
+        style={{
+          display: "block",
+          marginBottom: 16,
+          padding: "12px 14px",
+          width: "100%",
+          backgroundColor: "#0d1117",
+          color: "#f0f6fc",
+          border: "1px solid #30363d",
+          borderRadius: 8,
+          fontSize: 14,
+          boxSizing: "border-box"
+        }}
       />
 
       <input
         placeholder="Cliente / Email"
         value={client}
         onChange={(e) => setClient(e.target.value)}
-        style={{ display: "block", marginBottom: 10, padding: 8, width: '100%' }}
+        style={{
+          display: "block",
+          marginBottom: 16,
+          padding: "12px 14px",
+          width: "100%",
+          backgroundColor: "#0d1117",
+          color: "#f0f6fc",
+          border: "1px solid #30363d",
+          borderRadius: 8,
+          fontSize: 14,
+          boxSizing: "border-box"
+        }}
       />
 
       <select
@@ -123,7 +145,18 @@ export default function CreateLicense() {
           setPlan(p);
           setDays(PLANS[p]?.days || 30);
         }}
-        style={{ display: "block", marginBottom: 10, padding: 8, width: '100%' }}
+        style={{
+          display: "block",
+          marginBottom: 16,
+          padding: "12px 14px",
+          width: "100%",
+          backgroundColor: "#0d1117",
+          color: "#f0f6fc",
+          border: "1px solid #30363d",
+          borderRadius: 8,
+          fontSize: 14,
+          boxSizing: "border-box"
+        }}
       >
         <option value="basic">Basic (3,500 MZN/mês)</option>
         <option value="pro">Pro (7,000 MZN/mês)</option>
@@ -134,46 +167,120 @@ export default function CreateLicense() {
         type="number"
         value={days}
         onChange={(e) => setDays(Number(e.target.value))}
-        style={{ display: "block", marginBottom: 10, padding: 8, width: '100%' }}
+        style={{
+          display: "block",
+          marginBottom: 16,
+          padding: "12px 14px",
+          width: "100%",
+          backgroundColor: "#0d1117",
+          color: "#f0f6fc",
+          border: "1px solid #30363d",
+          borderRadius: 8,
+          fontSize: 14,
+          boxSizing: "border-box"
+        }}
       />
 
       {selectedPlan && (
-        <div style={{ marginBottom: 16, padding: 12, backgroundColor: "#f5f5f5", borderRadius: 8, fontSize: 14 }}>
-          <strong>{selectedPlan.name}</strong> — {selectedPlan.price.toLocaleString("pt-PT")} MZN
+        <div
+          style={{
+            marginBottom: 24,
+            padding: 16,
+            backgroundColor: "#151b2e",
+            color: "#f0f6fc",
+            borderRadius: 8,
+            fontSize: 14,
+            border: "1px solid #21262d"
+          }}
+        >
+          <strong style={{ textTransform: "uppercase", color: "#4fc3f7" }}>
+            {selectedPlan.name}
+          </strong> 
+          {" — "}
+          <span style={{ color: "#b0b3b8" }}>
+            {selectedPlan.price.toLocaleString("pt-PT")} MZN
+          </span>
           <br />
-          <span style={{ color: "#666" }}>{selectedPlan.description}</span>
+          <span style={{ color: "#b0b3b8" }}>{selectedPlan.description}</span>
           <br />
-          <span style={{ color: "#666" }}>Max {selectedPlan.maxUsers} utilizadores, {selectedPlan.maxProducts} produtos</span>
+          <span style={{ color: "#b0b3b8", fontSize: 12 }}>
+            Max {selectedPlan.maxUsers} utilizadores, {selectedPlan.maxProducts} produtos
+          </span>
         </div>
       )}
 
-      <button 
-        onClick={generate} 
+      <button
+        onClick={generate}
         disabled={loading}
-        style={{ padding: '10px 20px', cursor: loading ? 'not-allowed' : 'pointer' }}
+        style={{
+          padding: "10px 24px",
+          backgroundColor: "#1a237e",
+          color: "#fff",
+          border: "none",
+          borderRadius: 6,
+          cursor: loading ? "not-allowed" : "pointer",
+          fontSize: 14,
+          fontWeight: 500,
+          opacity: loading ? 0.6 : 1
+        }}
       >
         {loading ? "A gerar..." : "Gerar Licença"}
       </button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && (
+        <p style={{ color: "#ef5350", marginTop: 16 }}>
+          {error}
+        </p>
+      )}
 
       {subscription && (
-        <div style={{ marginTop: 20, padding: 15, backgroundColor: "#e8f5e9", borderRadius: 8 }}>
-          <h4>Subscrição criada:</h4>
-          <p><strong>ID:</strong> {subscription.id}</p>
-          <p><strong>Plano:</strong> {subscription.plan}</p>
-          <p><strong>Status:</strong> {subscription.status}</p>
-          <p><strong>Validade:</strong> {new Date(subscription.endDate).toLocaleDateString()}</p>
+        <div
+          style={{
+            marginTop: 24,
+            padding: 16,
+            backgroundColor: "rgba(46, 125, 50, 0.2)",
+            color: "#f0f6fc",
+            borderRadius: 8,
+            border: "1px solid #2e7d32"
+          }}
+        >
+          <h4 style={{ margin: "0 0 12px", fontSize: 16, color: "#81c784" }}>
+            ✅ Subscrição criada:
+          </h4>
+          <p style={{ margin: "4px 0" }}>
+            <strong>ID:</strong> <span style={{ fontFamily: "monospace", color: "#b0b3b8" }}>{subscription.id}</span>
+          </p>
+          <p style={{ margin: "4px 0" }}>
+            <strong>Plano:</strong> <span style={{ textTransform: "uppercase", color: "#4fc3f7" }}>{subscription.plan}</span>
+          </p>
+          <p style={{ margin: "4px 0" }}>
+            <strong>Status:</strong> {subscription.status}
+          </p>
+          <p style={{ margin: "4px 0" }}>
+            <strong>Validade:</strong> {new Date(subscription.endDate).toLocaleDateString()}
+          </p>
         </div>
       )}
 
       {license && (
-        <div style={{ marginTop: 20 }}>
-          <h3>Licença gerada:</h3>
+        <div style={{ marginTop: 24 }}>
+          <h3 style={{ margin: "0 0 8px", color: "#f0f6fc" }}>Licença gerada:</h3>
           <textarea
             value={license}
             readOnly
-            style={{ width: "100%", height: 120, padding: 8 }}
+            style={{
+              width: "100%",
+              height: 120,
+              padding: 12,
+              backgroundColor: "#0d1117",
+              color: "#4fc3f7",
+              border: "1px solid #30363d",
+              borderRadius: 8,
+              fontFamily: "monospace",
+              fontSize: 14,
+              boxSizing: "border-box",
+              resize: "vertical"
+            }}
           />
         </div>
       )}

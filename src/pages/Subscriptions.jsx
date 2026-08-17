@@ -22,11 +22,18 @@ export default function Subscriptions() {
     }
   }
 
-  return (
-    <div>
-      <h1 style={{ margin: '0 0 24px', fontSize: 28 }}>Subscrições</h1>
+  // Mapeamento para tradução PT-PT
+  const statusLabels = {
+    active: 'Ativa',
+    trial: 'Trial',
+    inactive: 'Inativa'
+  };
 
-      <div style={{ marginBottom: 20, display: 'flex', gap: 10 }}>
+  return (
+    <div style={{ padding: 24 }}>
+      <h1 style={{ margin: '0 0 24px', fontSize: 28, color: '#f0f6fc' }}>Subscrições</h1>
+
+      <div style={{ marginBottom: 20, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
         {['all', 'active', 'trial', 'inactive'].map((status) => (
           <button
             key={status}
@@ -35,72 +42,75 @@ export default function Subscriptions() {
               padding: '8px 16px',
               borderRadius: 6,
               border: 'none',
-              background: filter === status ? '#16213e' : '#e0e0e0',
-              color: filter === status ? '#fff' : '#333',
+              background: filter === status ? '#1a237e' : '#21262d',
+              color: filter === status ? '#fff' : '#b0b3b8',
               cursor: 'pointer',
               textTransform: 'capitalize',
+              fontSize: 14
             }}
           >
-            {status === 'all' ? 'Todas' : status}
+            {status === 'all' ? 'Todas' : statusLabels[status] || status}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <p>A carregar...</p>
+        <p style={{ color: '#b0b3b8' }}>A carregar...</p>
       ) : subscriptions.length === 0 ? (
-        <p>Sem subscrições.</p>
+        <p style={{ color: '#b0b3b8' }}>Sem subscrições.</p>
       ) : (
-        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-            <thead>
-              <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #e0e0e0' }}>
-                <th style={{ textAlign: 'left', padding: '14px 16px' }}>Cliente</th>
-                <th style={{ textAlign: 'left', padding: '14px 16px' }}>Plano</th>
-                <th style={{ textAlign: 'left', padding: '14px 16px' }}>Estado</th>
-                <th style={{ textAlign: 'left', padding: '14px 16px' }}>Pagamento</th>
-                <th style={{ textAlign: 'left', padding: '14px 16px' }}>Validade</th>
-                <th style={{ textAlign: 'left', padding: '14px 16px' }}>Machine ID</th>
-              </tr>
-            </thead>
-            <tbody>
-              {subscriptions.map((sub) => (
-                <tr key={sub.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                  <td style={{ padding: '12px 16px' }}>{sub.client}</td>
-                  <td style={{ padding: '12px 16px' }}>{sub.plan}</td>
-                  <td style={{ padding: '12px 16px' }}>
-                    <span style={{
-                      padding: '4px 10px',
-                      borderRadius: 12,
-                      fontSize: 12,
-                      fontWeight: 500,
-                      background: sub.status === 'active' ? '#e8f5e9' : sub.status === 'trial' ? '#fff3e0' : '#ffebee',
-                      color: sub.status === 'active' ? '#2e7d32' : sub.status === 'trial' ? '#e65100' : '#c62828',
-                    }}>
-                      {sub.status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px 16px' }}>
-                    <span style={{
-                      padding: '4px 10px',
-                      borderRadius: 12,
-                      fontSize: 12,
-                      background: sub.payment_status === 'paid' ? '#e8f5e9' : '#fff3e0',
-                      color: sub.payment_status === 'paid' ? '#2e7d32' : '#e65100',
-                    }}>
-                      {sub.payment_status}
-                    </span>
-                  </td>
-                  <td style={{ padding: '12px 16px', color: '#666', fontSize: 13 }}>
-                    {new Date(sub.expiry_date).toLocaleDateString('pt-PT')}
-                  </td>
-                  <td style={{ padding: '12px 16px', fontSize: 12, color: '#666', fontFamily: 'monospace' }}>
-                    {sub.machine_id ? sub.machine_id.substring(0, 16) + '...' : '—'}
-                  </td>
+        <div style={{ background: '#151b2e', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.4)', overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, color: '#f0f6fc' }}>
+              <thead>
+                <tr style={{ background: '#0d1117', borderBottom: '1px solid #21262d' }}>
+                  <th style={{ textAlign: 'left', padding: '14px 16px', color: '#b0b3b8' }}>Cliente</th>
+                  <th style={{ textAlign: 'left', padding: '14px 16px', color: '#b0b3b8' }}>Plano</th>
+                  <th style={{ textAlign: 'left', padding: '14px 16px', color: '#b0b3b8' }}>Estado</th>
+                  <th style={{ textAlign: 'left', padding: '14px 16px', color: '#b0b3b8' }}>Pagamento</th>
+                  <th style={{ textAlign: 'left', padding: '14px 16px', color: '#b0b3b8' }}>Validade</th>
+                  <th style={{ textAlign: 'left', padding: '14px 16px', color: '#b0b3b8' }}>Machine ID</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {subscriptions.map((sub) => (
+                  <tr key={sub.id} style={{ borderBottom: '1px solid #21262d' }}>
+                    <td style={{ padding: '12px 16px' }}>{sub.client}</td>
+                    <td style={{ padding: '12px 16px' }}>{sub.plan}</td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: 12,
+                        fontSize: 12,
+                        fontWeight: 500,
+                        background: sub.status === 'active' ? 'rgba(46, 125, 50, 0.2)' : sub.status === 'trial' ? 'rgba(255, 152, 0, 0.2)' : 'rgba(198, 40, 40, 0.2)',
+                        color: sub.status === 'active' ? '#81c784' : sub.status === 'trial' ? '#ffb74d' : '#ef5350',
+                      }}>
+                        {statusLabels[sub.status] || sub.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: 12,
+                        fontSize: 12,
+                        background: sub.payment_status === 'paid' ? 'rgba(46, 125, 50, 0.2)' : 'rgba(230, 81, 0, 0.2)',
+                        color: sub.payment_status === 'paid' ? '#81c784' : '#ffb74d',
+                      }}>
+                        {sub.payment_status === 'paid' ? 'Pago' : 'Pendente'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px', color: '#b0b3b8', fontSize: 13 }}>
+                      {new Date(sub.expiry_date).toLocaleDateString('pt-PT')}
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: 12, color: '#b0b3b8', fontFamily: 'monospace' }}>
+                      {sub.machine_id ? sub.machine_id.substring(0, 16) + '...' : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
