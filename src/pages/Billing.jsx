@@ -163,11 +163,11 @@ export default function Billing() {
 
   return (
     <div style={{ padding: 24 }}>
-      <h1 style={{ margin: "0 0 24px", fontSize: 28, fontWeight: 600 }}>
-        Faturacao
+      <h1 style={{ margin: "0 0 24px", fontSize: 28, fontWeight: 600, color: "#f0f6fc" }}>
+        Faturação
       </h1>
 
-      {/* KPIs */}
+      {/* KPIs - Corrigidos com tema escuro */}
       {stats && (
         <div
           style={{
@@ -179,7 +179,7 @@ export default function Billing() {
         >
           {[
             {
-              label: "Total Subscricoes",
+              label: "Total Subscrições",
               value: stats.total,
               color: "#1976d2",
             },
@@ -199,7 +199,7 @@ export default function Billing() {
               color: "#ff9800",
             },
             {
-              label: "Receita (periodo)",
+              label: "Receita (período)",
               value: `${periodRevenue.toFixed(2)} MZN`,
               color: "#e91e63",
             },
@@ -207,14 +207,14 @@ export default function Billing() {
             <div
               key={card.label}
               style={{
-                background: "#fff",
+                background: "#151b2e",
                 borderRadius: 12,
                 padding: 20,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
                 borderLeft: `4px solid ${card.color}`,
               }}
             >
-              <div style={{ color: "#666", fontSize: 13, marginBottom: 8 }}>
+              <div style={{ color: "#b0b3b8", fontSize: 13, marginBottom: 8 }}>
                 {card.label}
               </div>
               <div
@@ -227,16 +227,16 @@ export default function Billing() {
         </div>
       )}
 
-      {/* Filtro de periodo */}
+      {/* Filtro de periodo - Corrigidos */}
       <div style={{ marginBottom: 20 }}>
-        <span style={{ fontSize: 14, fontWeight: 500, marginRight: 12 }}>
-          Periodo:
+        <span style={{ fontSize: 14, fontWeight: 500, color: "#f0f6fc", marginRight: 12 }}>
+          Período:
         </span>
         {[
           { key: "all", label: "Todo" },
           { key: "today", label: "Hoje" },
           { key: "week", label: "Esta semana" },
-          { key: "month", label: "Este mes" },
+          { key: "month", label: "Este mês" },
         ].map((p) => (
           <button
             key={p.key}
@@ -246,8 +246,8 @@ export default function Billing() {
               marginRight: 8,
               borderRadius: 6,
               border: "none",
-              background: period === p.key ? "#16213e" : "#e0e0e0",
-              color: period === p.key ? "#fff" : "#333",
+              background: period === p.key ? "#1a237e" : "#21262d",
+              color: period === p.key ? "#fff" : "#b0b3b8",
               cursor: "pointer",
               fontSize: 13,
             }}
@@ -257,18 +257,18 @@ export default function Billing() {
         ))}
       </div>
 
-      {/* Criar subscricao */}
+      {/* Criar subscricao - Corrigido fundo e inputs */}
       <div
         style={{
-          background: "#fff",
+          background: "#151b2e",
           borderRadius: 12,
           padding: 24,
           marginBottom: 32,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
         }}
       >
-        <h3 style={{ margin: "0 0 16px", fontSize: 18 }}>
-          Criar Nova Subscricao
+        <h3 style={{ margin: "0 0 16px", fontSize: 18, color: "#f0f6fc" }}>
+          Criar Nova Subscrição
         </h3>
 
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -279,7 +279,9 @@ export default function Billing() {
             style={{
               padding: "10px 14px",
               borderRadius: 8,
-              border: "1px solid #ddd",
+              border: "1px solid #30363d",
+              background: "#0d1117",
+              color: "#f0f6fc",
               fontSize: 14,
               minWidth: 200,
             }}
@@ -291,7 +293,9 @@ export default function Billing() {
             style={{
               padding: "10px 14px",
               borderRadius: 8,
-              border: "1px solid #ddd",
+              border: "1px solid #30363d",
+              background: "#0d1117",
+              color: "#f0f6fc",
               fontSize: 14,
               minWidth: 200,
             }}
@@ -309,7 +313,9 @@ export default function Billing() {
             style={{
               padding: "10px 14px",
               borderRadius: 8,
-              border: "1px solid #ddd",
+              border: "1px solid #30363d",
+              background: "#0d1117",
+              color: "#f0f6fc",
               fontSize: 14,
             }}
           >
@@ -327,7 +333,9 @@ export default function Billing() {
             style={{
               padding: "10px 14px",
               borderRadius: 8,
-              border: "1px solid #ddd",
+              border: "1px solid #30363d",
+              background: "#0d1117",
+              color: "#f0f6fc",
               fontSize: 14,
               width: 100,
             }}
@@ -345,300 +353,306 @@ export default function Billing() {
               fontWeight: 500,
             }}
           >
-            Criar Subscricao
+            Criar Subscrição
           </button>
         </div>
       </div>
 
-      {/* Lista de subscricoes */}
-      <h3 style={{ margin: "0 0 16px", fontSize: 18 }}>Subscricoes</h3>
+      {/* Lista de subscrições - Corrigido fundo e cores das tabelas */}
+      <h3 style={{ margin: "0 0 16px", fontSize: 18, color: "#f0f6fc" }}>Subscrições</h3>
 
       {loading ? (
-        <p>A carregar...</p>
+        <p style={{ color: "#b0b3b8" }}>A carregar...</p>
       ) : subs.length === 0 ? (
-        <p style={{ color: "#888" }}>Nenhuma subscricao encontrada.</p>
+        <p style={{ color: "#888" }}>Nenhuma subscrição encontrada.</p>
       ) : (
         <div
           style={{
-            background: "#fff",
+            background: "#151b2e",
             borderRadius: 12,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
             overflow: "hidden",
           }}
         >
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              fontSize: 14,
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  background: "#f8f9fa",
-                  borderBottom: "2px solid #e0e0e0",
-                }}
-              >
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Cliente
-                </th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Plano
-                </th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Estado
-                </th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Pagamento
-                </th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Validade
-                </th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Dias Rest.
-                </th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Acoes
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {subs.map((s) => {
-                const daysLeft = Math.ceil(
-                  (new Date(s.expiry_date) - new Date()) /
-                    (1000 * 60 * 60 * 24)
-                );
-                const isExpired = daysLeft <= 0;
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: 14,
+                color: "#f0f6fc",
+              }}
+            >
+              <thead>
+                <tr
+                  style={{
+                    background: "#0d1117",
+                    borderBottom: "1px solid #21262d",
+                  }}
+                >
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Cliente
+                  </th>
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Plano
+                  </th>
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Estado
+                  </th>
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Pagamento
+                  </th>
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Validade
+                  </th>
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Dias Rest.
+                  </th>
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {subs.map((s) => {
+                  const daysLeft = Math.ceil(
+                    (new Date(s.expiry_date) - new Date()) /
+                      (1000 * 60 * 60 * 24)
+                  );
+                  const isExpired = daysLeft <= 0;
 
-                return (
-                  <tr
-                    key={s.id}
-                    style={{ borderBottom: "1px solid #f0f0f0" }}
-                  >
-                    <td style={{ padding: "12px 16px", fontWeight: 500 }}>
-                      {s.client}
-                      {s.email && (
-                        <div
+                  return (
+                    <tr
+                      key={s.id}
+                      style={{ borderBottom: "1px solid #21262d" }}
+                    >
+                      <td style={{ padding: "12px 16px", fontWeight: 500 }}>
+                        {s.client}
+                        {s.email && (
+                          <div
+                            style={{
+                              fontSize: 12,
+                              color: "#b0b3b8",
+                              fontWeight: 400,
+                            }}
+                          >
+                            {s.email}
+                          </div>
+                        )}
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        <span
                           style={{
+                            padding: "4px 10px",
+                            borderRadius: 12,
                             fontSize: 12,
-                            color: "#888",
-                            fontWeight: 400,
+                            fontWeight: 500,
+                            background: `${planColors[s.plan] || "#666"}25`,
+                            color: planColors[s.plan] || "#b0b3b8",
+                            textTransform: "uppercase",
                           }}
                         >
-                          {s.email}
+                          {s.plan}
+                        </span>
+                        <div style={{ fontSize: 11, color: "#b0b3b8", marginTop: 4 }}>
+                          {PLANS[s.plan]?.price?.toLocaleString("pt-PT")} MZN
+                          {s.plan === "enterprise" ? "/ano" : "/mês"}
                         </div>
-                      )}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <span
-                        style={{
-                          padding: "4px 10px",
-                          borderRadius: 12,
-                          fontSize: 12,
-                          fontWeight: 500,
-                          background: `${planColors[s.plan] || "#666"}15`,
-                          color: planColors[s.plan] || "#666",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {s.plan}
-                      </span>
-                      <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>
-                        {PLANS[s.plan]?.price?.toLocaleString("pt-PT")} MZN
-                        {s.plan === "enterprise" ? "/ano" : "/mês"}
-                      </div>
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <span
-                        style={{
-                          padding: "4px 10px",
-                          borderRadius: 12,
-                          fontSize: 12,
-                          background:
-                            s.status === "active" && !isExpired
-                              ? "#e8f5e9"
-                              : "#ffebee",
-                          color:
-                            s.status === "active" && !isExpired
-                              ? "#2e7d32"
-                              : "#c62828",
-                        }}
-                      >
-                        {isExpired ? "Expirada" : s.status}
-                      </span>
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      <span
-                        style={{
-                          padding: "4px 10px",
-                          borderRadius: 12,
-                          fontSize: 12,
-                          background:
-                            s.payment_status === "paid"
-                              ? "#e8f5e9"
-                              : "#fff3e0",
-                          color:
-                            s.payment_status === "paid"
-                              ? "#2e7d32"
-                              : "#e65100",
-                        }}
-                      >
-                        {s.payment_status === "paid" ? "Pago" : "Pendente"}
-                      </span>
-                    </td>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        color: "#666",
-                        fontSize: 13,
-                      }}
-                    >
-                      {new Date(s.expiry_date).toLocaleDateString("pt-PT")}
-                    </td>
-                    <td
-                      style={{
-                        padding: "12px 16px",
-                        fontSize: 13,
-                        color: isExpired ? "#c62828" : daysLeft <= 7 ? "#ff9800" : "#666",
-                        fontWeight: isExpired || daysLeft <= 7 ? 600 : 400,
-                      }}
-                    >
-                      {isExpired ? "0" : daysLeft}
-                    </td>
-                    <td style={{ padding: "12px 16px" }}>
-                      {s.payment_status !== "paid" && !isExpired && (
-                        <button
-                          onClick={() => simulatePay(s.id)}
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        <span
                           style={{
-                            padding: "6px 14px",
-                            borderRadius: 6,
-                            border: "none",
-                            background: "#4caf50",
-                            color: "#fff",
-                            cursor: "pointer",
+                            padding: "4px 10px",
+                            borderRadius: 12,
                             fontSize: 12,
+                            background:
+                              s.status === "active" && !isExpired
+                                ? "rgba(46, 125, 50, 0.2)"
+                                : "rgba(198, 40, 40, 0.2)",
+                            color:
+                              s.status === "active" && !isExpired
+                                ? "#81c784"
+                                : "#ef5350",
                           }}
                         >
-                          Simular Pagamento ({PLANS[s.plan]?.price?.toLocaleString("pt-PT")} MZN)
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                          {isExpired ? "Expirada" : s.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        <span
+                          style={{
+                            padding: "4px 10px",
+                            borderRadius: 12,
+                            fontSize: 12,
+                            background:
+                              s.payment_status === "paid"
+                                ? "rgba(46, 125, 50, 0.2)"
+                                : "rgba(230, 81, 0, 0.2)",
+                            color:
+                              s.payment_status === "paid"
+                                ? "#81c784"
+                                : "#ffb74d",
+                          }}
+                        >
+                          {s.payment_status === "paid" ? "Pago" : "Pendente"}
+                        </span>
+                      </td>
+                      <td
+                        style={{
+                          padding: "12px 16px",
+                          color: "#b0b3b8",
+                          fontSize: 13,
+                        }}
+                      >
+                        {new Date(s.expiry_date).toLocaleDateString("pt-PT")}
+                      </td>
+                      <td
+                        style={{
+                          padding: "12px 16px",
+                          fontSize: 13,
+                          color: isExpired ? "#ef5350" : daysLeft <= 7 ? "#ff9800" : "#b0b3b8",
+                          fontWeight: isExpired || daysLeft <= 7 ? 600 : 400,
+                        }}
+                      >
+                        {isExpired ? "0" : daysLeft}
+                      </td>
+                      <td style={{ padding: "12px 16px" }}>
+                        {s.payment_status !== "paid" && !isExpired && (
+                          <button
+                            onClick={() => simulatePay(s.id)}
+                            style={{
+                              padding: "6px 14px",
+                              borderRadius: 6,
+                              border: "none",
+                              background: "#4caf50",
+                              color: "#fff",
+                              cursor: "pointer",
+                              fontSize: 12,
+                            }}
+                          >
+                            Simular Pagamento ({PLANS[s.plan]?.price?.toLocaleString("pt-PT")} MZN)
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
-      {/* Pagamentos recentes */}
-      <h3 style={{ margin: "32px 0 16px", fontSize: 18 }}>
+      {/* Pagamentos recentes - Corrigido fundo e cores das tabelas */}
+      <h3 style={{ margin: "32px 0 16px", fontSize: 18, color: "#f0f6fc" }}>
         Pagamentos Recentes
       </h3>
 
       {payments.length === 0 ? (
-        <p style={{ color: "#888" }}>Nenhum pagamento registado.</p>
+        <p style={{ color: "#b0b3b8" }}>Nenhum pagamento registado.</p>
       ) : (
         <div
           style={{
-            background: "#fff",
+            background: "#151b2e",
             borderRadius: 12,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
             overflow: "hidden",
           }}
         >
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              fontSize: 14,
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  background: "#f8f9fa",
-                  borderBottom: "2px solid #e0e0e0",
-                }}
-              >
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Data
-                </th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Cliente
-                </th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Valor
-                </th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Metodo
-                </th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Estado
-                </th>
-                <th style={{ textAlign: "left", padding: "14px 16px" }}>
-                  Ref.
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {payments.slice(0, 20).map((p) => (
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: 14,
+                color: "#f0f6fc",
+              }}
+            >
+              <thead>
                 <tr
-                  key={p.id}
-                  style={{ borderBottom: "1px solid #f0f0f0" }}
+                  style={{
+                    background: "#0d1117",
+                    borderBottom: "1px solid #21262d",
+                  }}
                 >
-                  <td
-                    style={{
-                      padding: "12px 16px",
-                      color: "#666",
-                      fontSize: 13,
-                    }}
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Data
+                  </th>
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Cliente
+                  </th>
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Valor
+                  </th>
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Método
+                  </th>
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Estado
+                  </th>
+                  <th style={{ textAlign: "left", padding: "14px 16px", color: "#b0b3b8" }}>
+                    Ref.
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {payments.slice(0, 20).map((p) => (
+                  <tr
+                    key={p.id}
+                    style={{ borderBottom: "1px solid #21262d" }}
                   >
-                    {new Date(p.created_at).toLocaleDateString("pt-PT")}
-                  </td>
-                  <td style={{ padding: "12px 16px" }}>{p.client}</td>
-                  <td
-                    style={{
-                      padding: "12px 16px",
-                      fontWeight: 600,
-                      color: "#2e7d32",
-                    }}
-                  >
-                    {p.amount?.toFixed(2)} MZN
-                  </td>
-                  <td style={{ padding: "12px 16px", fontSize: 13 }}>
-                    {p.provider}
-                  </td>
-                  <td style={{ padding: "12px 16px" }}>
-                    <span
+                    <td
                       style={{
-                        padding: "4px 10px",
-                        borderRadius: 12,
-                        fontSize: 12,
-                        background:
-                          p.status === "success" ? "#e8f5e9" : "#ffebee",
-                        color:
-                          p.status === "success" ? "#2e7d32" : "#c62828",
+                        padding: "12px 16px",
+                        color: "#b0b3b8",
+                        fontSize: 13,
                       }}
                     >
-                      {p.status}
-                    </span>
-                  </td>
-                  <td
-                    style={{
-                      padding: "12px 16px",
-                      fontSize: 12,
-                      color: "#888",
-                      fontFamily: "monospace",
-                    }}
-                  >
-                    {p.reference}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      {new Date(p.created_at).toLocaleDateString("pt-PT")}
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>{p.client}</td>
+                    <td
+                      style={{
+                        padding: "12px 16px",
+                        fontWeight: 600,
+                        color: "#81c784",
+                      }}
+                    >
+                      {p.amount?.toFixed(2)} MZN
+                    </td>
+                    <td style={{ padding: "12px 16px", fontSize: 13, color: "#b0b3b8" }}>
+                      {p.provider}
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <span
+                        style={{
+                          padding: "4px 10px",
+                          borderRadius: 12,
+                          fontSize: 12,
+                          background:
+                            p.status === "success" ? "rgba(46, 125, 50, 0.2)" : "rgba(198, 40, 40, 0.2)",
+                          color:
+                            p.status === "success" ? "#81c784" : "#ef5350",
+                        }}
+                      >
+                        {p.status}
+                      </span>
+                    </td>
+                    <td
+                      style={{
+                        padding: "12px 16px",
+                        fontSize: 12,
+                        color: "#b0b3b8",
+                        fontFamily: "monospace",
+                      }}
+                    >
+                      {p.reference}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
