@@ -1,5 +1,4 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { useState } from 'react';
 import Navbar from './Navbar';
 
 const menuItems = [
@@ -16,7 +15,7 @@ export default function Layout() {
   const location = useLocation();
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Segoe UI, sans-serif' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Segoe UI, sans-serif', background: '#0d1117' }}>
       {/* Sidebar */}
       <aside style={{
         width: 260,
@@ -59,11 +58,11 @@ export default function Layout() {
         </nav>
       </aside>
 
-      {/* Main content */}
+      {/* Main content CORRIGIDO: Removido o background: '#f5f5f5' e adicionado cor de texto padrão do tema */}
       <main style={{
         flex: 1,
         marginLeft: 260,
-        background: '#f5f5f5',
+        background: '#0d1117',
         minHeight: '100vh',
       }}>
         <Navbar />
