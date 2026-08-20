@@ -116,6 +116,25 @@ export default function Licenses() {
     }
   }
 
+  // =========================================================
+  // NOVA FUNÇÃO: Gerar Código de Renovação Offline (HMAC)
+  // =========================================================
+  async function generateOfflineCode(license) {
+    if (!confirm(`Deseja gerar um código de renovação offline para ${license.client}?`)) return;
+    try {
+      const res = await API.post("/licenses/generate-offline-code", { machineId: license.machine_id, days: 30 });
+      if (res.data.success) {
+        const code = res.data.code;
+        alert(`Código de renovação offline gerado com sucesso!\n\n${code}\n\nCopie este código e envie para o cliente via WhatsApp. Ele deve inserir o código na opção "Renovar Offline" no software VMP.`);
+        load();
+      } else {
+        alert("Erro: " + (res.data?.message || "Falha ao gerar código."));
+      }
+    } catch (e) {
+      alert("Erro: " + (e.response?.data?.details || e.message));
+    }
+  }
+
   function reactivate(license) {
     setReactivateModal(license);
   }
@@ -504,6 +523,22 @@ export default function Licenses() {
                               Reativar
                             </button>
                           )}
+                          {/* NOVO BOTÃO: Gerar Código Offline */}
+                          <button
+                            onClick={() => generateOfflineCode(l)}
+                            title="Gerar código para renovação offline"
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: 6,
+                              border: "1px solid #ff9800",
+                              background: "transparent",
+                              color: "#ffa726",
+                              cursor: "pointer",
+                              fontSize: 12,
+                            }}
+                          >
+                            Código Offline
+                          </button>
                           <button
                             onClick={() => deleteLicense(l.id)}
                             title="Apagar permanentemente"
