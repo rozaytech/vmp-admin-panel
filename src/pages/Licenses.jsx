@@ -9,7 +9,7 @@ const PLANS = {
     days: 30,
     maxUsers: 2,
     maxProducts: 500,
-    features: ["pos", "inventory", "cash_register", "basic_reports", "z_report"],
+    features: ["pos", "inventory", "cash_register", "basic_reports", "z_report", "settings", "multi_warehouse", "customers", "promotions", "analytics"],
     description: "Ideal para pequenos negócios e bancas",
   },
   pro: {
@@ -19,17 +19,7 @@ const PLANS = {
     days: 30,
     maxUsers: 5,
     maxProducts: 5000,
-    features: [
-      "pos",
-      "inventory",
-      "cash_register",
-      "advanced_reports",
-      "z_report",
-      "promotions",
-      "customers",
-      "multi_warehouse",
-      "analytics",
-    ],
+    features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "settings", "profit_margin"],
     description: "Para lojas em crescimento",
   },
   enterprise: {
@@ -39,25 +29,14 @@ const PLANS = {
     days: 365,
     maxUsers: 999,
     maxProducts: 99999,
-    features: [
-      "pos",
-      "inventory",
-      "cash_register",
-      "advanced_reports",
-      "z_report",
-      "promotions",
-      "customers",
-      "multi_warehouse",
-      "analytics",
-      "accounting",
-      "profit_margin",
-      "remote_dashboard",
-      "priority_support",
-      "api_access",
-    ],
+    features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "accounting", "profit_margin", "remote_dashboard", "priority_support", "api_access", "cloud_backup", "settings"],
     description: "Para cadeias e grandes estabelecimentos",
   },
 };
+
+const ALL_FEATURES = [
+  "pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "accounting", "profit_margin", "remote_dashboard", "priority_support", "api_access", "cloud_backup", "settings"
+];
 
 export default function Licenses() {
   const [licenses, setLicenses] = useState([]);
@@ -67,6 +46,8 @@ export default function Licenses() {
   const [transferModal, setTransferModal] = useState(null);
   const [editModal, setEditModal] = useState(null);
   const [reactivateModal, setReactivateModal] = useState(null);
+  const [featuresModal, setFeaturesModal] = useState(null);
+  const [selectedFeatures, setSelectedFeatures] = useState([]);
 
   useEffect(() => {
     load();
@@ -116,9 +97,37 @@ export default function Licenses() {
     }
   }
 
-  // =========================================================
-  // NOVA FUNÇÃO: Gerar Código de Renovação Offline (HMAC)
-  // =========================================================
+  function openFeaturesModal(license) {
+    let currentFeatures = [];
+    try {
+      currentFeatures = license.custom_features ? JSON.parse(license.custom_features) : [];
+    } catch (e) {
+      currentFeatures = [];
+    }
+    setSelectedFeatures(currentFeatures);
+    setFeaturesModal(license);
+  }
+
+  async function saveFeatures() {
+    if (!featuresModal) return;
+    try {
+      await API.put(`/licenses/${featuresModal.id}/features`, { features: selectedFeatures });
+      alert("Módulos atualizados com sucesso!");
+      setFeaturesModal(null);
+      load();
+    } catch (e) {
+      alert("Erro: " + (e.response?.data?.details || e.message));
+    }
+  }
+
+  function toggleFeature(feature) {
+    setSelectedFeatures(prev => 
+      prev.includes(feature) 
+        ? prev.filter(f => f !== feature) 
+        : [...prev, feature]
+    );
+  }
+
   async function generateOfflineCode(license) {
     if (!confirm(`Deseja gerar um código de renovação offline para ${license.client}?`)) return;
     try {
@@ -317,12 +326,11 @@ export default function Licenses() {
             overflow: 'hidden',
           }}
         >
-          {/* CORREÇÃO MOBILE: Adicionado overflowX: auto para a tabela rolar lateralmente */}
           <div style={{ overflowX: 'auto', width: '100%' }}>
             <table
               style={{
                 width: "100%",
-                minWidth: '800px', // Garante que os dados não fiquem esmagados no celular
+                minWidth: '800px',
                 borderCollapse: "collapse",
                 fontSize: 14,
                 color: "#f0f6fc",
@@ -474,6 +482,21 @@ export default function Licenses() {
                           >
                             Transferir
                           </button>
+                          <button
+                            onClick={() => openFeaturesModal(l)}
+                            title="Ativar módulos específicos para este cliente"
+                            style={{
+                              padding: "6px 12px",
+                              borderRadius: 6,
+                              border: "1px solid #8b5cf6",
+                              background: "transparent",
+                              color: "#a78bfa",
+                              cursor: "pointer",
+                              fontSize: 12,
+                            }}
+                          >
+                            Módulos
+                          </button>
                           {status === "active" && (
                             <>
                               <button
@@ -523,7 +546,6 @@ export default function Licenses() {
                               Reativar
                             </button>
                           )}
-                          {/* NOVO BOTÃO: Gerar Código Offline */}
                           <button
                             onClick={() => generateOfflineCode(l)}
                             title="Gerar código para renovação offline"
@@ -561,6 +583,123 @@ export default function Licenses() {
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* NOVO: Modal de Funcionalidades Personalizadas (Substituição Total) */}
+      {featuresModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: "#151b2e",
+              borderRadius: 12,
+              padding: 32,
+              width: 520,
+              maxWidth: "90%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              color: "#f0f6fc",
+            }}
+          >
+            <h3 style={{ margin: "0 0 8px" }}>Personalizar Módulos</h3>
+            <p style={{ color: "#b0b3b8", fontSize: 13, marginBottom: 20 }}>
+              Cliente: <strong style={{ color: "#f0f6fc" }}>{featuresModal.client}</strong>
+              <br />
+              Plano atual: <strong style={{ color: "#a78bfa" }}>{featuresModal.plan.toUpperCase()}</strong>
+              <br />
+              <span style={{ fontSize: 12, fontStyle: "italic", color: "#ffb74d" }}>
+                ⚠️ Estes módulos SUBSTITUEM totalmente os do plano. Deixe vazio para usar os padrões do plano.
+              </span>
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+              {ALL_FEATURES.map((feature) => {
+                const isChecked = selectedFeatures.includes(feature);
+                return (
+                  <label
+                    key={feature}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      background: isChecked ? "rgba(139, 92, 246, 0.15)" : "#0d1117",
+                      border: `1px solid ${isChecked ? "#8b5cf6" : "#30363d"}`,
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleFeature(feature)}
+                      style={{ width: 16, height: 16, cursor: "pointer" }}
+                    />
+                    <span style={{ textTransform: "capitalize", fontSize: 14 }}>
+                      {feature.replace(/_/g, " ")}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+
+            <div style={{ display: "flex", gap: 12, justifyContent: "flex-end", flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setSelectedFeatures([])}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 8,
+                  border: "1px solid #ff9800",
+                  background: "transparent",
+                  color: "#ffa726",
+                  cursor: "pointer",
+                }}
+              >
+                Usar Padrão do Plano (Limpar)
+              </button>
+              <button
+                onClick={() => setFeaturesModal(null)}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 8,
+                  border: "1px solid #30363d",
+                  background: "transparent",
+                  color: "#f0f6fc",
+                  cursor: "pointer",
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={saveFeatures}
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: "#8b5cf6",
+                  color: "#fff",
+                  cursor: "pointer",
+                  fontWeight: "600",
+                }}
+              >
+                Guardar Módulos
+              </button>
+            </div>
           </div>
         </div>
       )}
