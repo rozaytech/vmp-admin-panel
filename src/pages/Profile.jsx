@@ -8,54 +8,80 @@ const ROLES = [
   { value: 'superadmin', label: 'Super Admin' },
 ];
 
+const inputStyle = {
+  width: '100%',
+  padding: '10px 12px',
+  marginBottom: 16,
+  borderRadius: 8,
+  border: '1px solid #30363d',
+  background: '#0d1117',
+  color: '#f0f6fc',
+  fontSize: 14,
+  boxSizing: 'border-box',
+};
+
+const labelStyle = {
+  display: 'block',
+  marginBottom: 6,
+  fontWeight: 500,
+  color: '#f0f6fc',
+  fontSize: 14,
+};
+
+const btnPrimary = {
+  padding: '10px 24px',
+  background: '#1a237e',
+  color: '#fff',
+  border: 'none',
+  borderRadius: 6,
+  cursor: 'pointer',
+  fontSize: 14,
+  fontWeight: 500,
+};
+
+const btnSecondary = {
+  padding: '10px 24px',
+  background: 'transparent',
+  color: '#f0f6fc',
+  border: '1px solid #30363d',
+  borderRadius: 6,
+  cursor: 'pointer',
+  fontSize: 14,
+  marginLeft: 10,
+};
+
 export default function Profile() {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState(null);
 
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showUsersModal, setShowUsersModal] = useState(false);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+
+  const [message, setMessage] = useState(null);
   const [profileForm, setProfileForm] = useState({ name: '', username: '', email: '', phone: '' });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [newUserForm, setNewUserForm] = useState({ name: '', email: '', username: '', password: '', role: 'viewer' });
 
   const currentRole = localStorage.getItem('vmp_role') || 'admin';
-
-  // Admin e Super Admin podem gerir utilizadores
   const canManageUsers = currentRole === 'admin' || currentRole === 'superadmin';
 
   useEffect(() => {
     loadProfile();
-    if (canManageUsers) {
-      loadUsers();
-    }
+    if (canManageUsers) loadUsers();
   }, [canManageUsers]);
 
   async function loadProfile() {
     try {
       const res = await API.get('/auth/me');
       setUser(res.data);
-      setProfileForm({ 
-        name: res.data.name || '', 
-        username: res.data.username || '',
-        email: res.data.email || '',
-        phone: res.data.phone || ''
-      });
+      setProfileForm({ name: res.data.name || '', username: res.data.username || '', email: res.data.email || '', phone: res.data.phone || '' });
     } catch (e) {
       console.error(e);
-      // Fallback se API não existir
-      setUser({
-        name: localStorage.getItem('vmp_user_name') || 'Admin',
-        username: localStorage.getItem('vmp_username') || 'admin',
-        email: localStorage.getItem('vmp_user_email') || '',
-        phone: localStorage.getItem('vmp_user_phone') || '',
-        role: currentRole
-      });
-      setProfileForm({ 
-        name: user?.name || 'Admin', 
-        username: user?.username || 'admin',
-        email: user?.email || '',
-        phone: user?.phone || ''
-      });
+      setUser({ name: localStorage.getItem('vmp_user_name') || 'Admin', username: 'admin', role: currentRole });
+      setProfileForm({ name: 'Admin', username: 'admin', email: '', phone: '' });
     } finally {
       setLoading(false);
     }
@@ -74,9 +100,10 @@ export default function Profile() {
     e.preventDefault();
     setMessage(null);
     try {
-      const res = await API.put('/auth/profile', profileForm);
+      await API.put('/auth/profile', profileForm);
       setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
-      setUser(res.data);
+      setUser(profileForm);
+      setShowEditProfile(false);
     } catch (e) {
       setMessage({ type: 'error', text: e.response?.data?.message || 'Erro ao atualizar perfil.' });
     }
@@ -90,12 +117,10 @@ export default function Profile() {
       return;
     }
     try {
-      await API.put('/auth/password', {
-        currentPassword: passwordForm.currentPassword,
-        newPassword: passwordForm.newPassword
-      });
+      await API.put('/auth/password', { currentPassword: passwordForm.currentPassword, newPassword: passwordForm.newPassword });
       setMessage({ type: 'success', text: 'Password alterada com sucesso!' });
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setShowPasswordModal(false);
     } catch (e) {
       setMessage({ type: 'error', text: e.response?.data?.message || 'Erro ao alterar password.' });
     }
@@ -108,6 +133,7 @@ export default function Profile() {
       await API.post('/users/create', newUserForm);
       setMessage({ type: 'success', text: 'Usuário criado com sucesso!' });
       setNewUserForm({ name: '', email: '', username: '', password: '', role: 'viewer' });
+      setShowAddUserModal(false);
       loadUsers();
     } catch (e) {
       setMessage({ type: 'error', text: e.response?.data?.message || 'Erro ao criar usuário.' });
@@ -133,329 +159,230 @@ export default function Profile() {
     border: `1px solid ${message?.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
   };
 
-  const inputStyle = {
-    width: '100%',
-    padding: '10px 12px',
-    marginBottom: 16,
-    borderRadius: 8,
-    border: '1px solid #30363d',
-    background: '#0d1117',
-    color: '#f0f6fc',
-    fontSize: 14,
-    boxSizing: 'border-box',
+  const modalOverlayStyle = {
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
   };
 
-  const labelStyle = {
-    display: 'block',
-    marginBottom: 6,
-    fontWeight: 500,
-    color: '#f0f6fc',
-    fontSize: 14,
+  const modalContentStyle = {
+    background: '#151b2e', borderRadius: 12, padding: 32,
+    width: '100%', maxWidth: 500, maxHeight: '90vh', overflowY: 'auto',
+    color: '#f0f6fc', boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
   };
 
   if (loading) return <p style={{ color: '#b0b3b8' }}>A carregar...</p>;
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto', padding: 20 }}>
-      <h1 style={{ margin: '0 0 24px', fontSize: 28, fontWeight: 600, color: '#f0f6fc' }}>
-        Perfil do Utilizador
-      </h1>
+      <h1 style={{ margin: '0 0 24px', fontSize: 28, fontWeight: 600, color: '#f0f6fc' }}>Perfil do Utilizador</h1>
 
       {message && <div style={messageStyle}>{message.text}</div>}
 
-      {/* Informações do Utilizador Logado */}
+      {/* Cartão Principal de Perfil */}
       <div style={{
-        background: '#151b2e',
-        borderRadius: 12,
-        padding: 24,
-        marginBottom: 24,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 20,
-        flexWrap: 'wrap'
+        background: '#151b2e', borderRadius: 12, padding: 32, marginBottom: 24,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap'
       }}>
         <div style={{
-          width: 60, height: 60,
-          borderRadius: '50%',
-          background: '#1a237e',
+          width: 80, height: 80, borderRadius: '50%', background: '#1a237e',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 28, fontWeight: 'bold', color: '#fff'
+          fontSize: 36, fontWeight: 'bold', color: '#fff'
         }}>
           {(user?.name || 'A')[0].toUpperCase()}
         </div>
-        <div>
-          <h3 style={{ margin: '0 0 6px', fontSize: 20, color: '#f0f6fc' }}>{user?.name || 'Admin'}</h3>
-          <p style={{ margin: 0, fontSize: 14, color: '#b0b3b8' }}>
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <h2 style={{ margin: '0 0 8px', fontSize: 24, color: '#f0f6fc' }}>{user?.name || 'Admin'}</h2>
+          <p style={{ margin: 0, fontSize: 15, color: '#b0b3b8' }}>
             <strong>Username:</strong> {user?.username}
           </p>
-          <p style={{ margin: 0, fontSize: 14, color: '#b0b3b8' }}>
+          <p style={{ margin: 4, fontSize: 15, color: '#b0b3b8' }}>
             <strong>Email:</strong> {user?.email || 'Não definido'}
           </p>
-          <p style={{ margin: 0, fontSize: 14, color: '#b0b3b8' }}>
+          <p style={{ margin: 4, fontSize: 15, color: '#b0b3b8' }}>
             <strong>Telefone:</strong> {user?.phone || 'Não definido'}
           </p>
-          <p style={{ margin: '6px 0 0', fontSize: 12 }}>
+          <p style={{ margin: '10px 0 0', fontSize: 12 }}>
             <span style={{
-              padding: '4px 10px',
-              borderRadius: 12,
-              fontSize: 12,
-              background: 'rgba(21, 101, 192, 0.2)',
-              color: '#64b5f6',
-              textTransform: 'uppercase',
-              fontWeight: 'bold'
+              padding: '4px 10px', borderRadius: 12, fontSize: 12,
+              background: 'rgba(21, 101, 192, 0.2)', color: '#64b5f6', textTransform: 'uppercase', fontWeight: 'bold'
             }}>
               {user?.role || currentRole}
             </span>
           </p>
         </div>
-      </div>
-
-      {/* Informações Pessoais */}
-      <div style={{
-        background: '#151b2e',
-        borderRadius: 12,
-        padding: 24,
-        marginBottom: 24,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
-      }}>
-        <h3 style={{ margin: '0 0 16px', fontSize: 18, color: '#f0f6fc' }}>Editar Informações</h3>
-        <form onSubmit={handleUpdateProfile}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div>
-              <label style={labelStyle}>Nome</label>
-              <input
-                type="text"
-                value={profileForm.name}
-                onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                style={inputStyle}
-                required
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Nome de Utilizador</label>
-              <input
-                type="text"
-                value={profileForm.username}
-                onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
-                style={inputStyle}
-                required
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Email</label>
-              <input
-                type="email"
-                value={profileForm.email}
-                onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Telefone</label>
-              <input
-                type="text"
-                value={profileForm.phone}
-                onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-          </div>
-          <button type="submit" style={{
-            padding: '10px 24px',
-            background: '#1a237e',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            cursor: 'pointer',
-            fontSize: 14,
-            fontWeight: 500,
-          }}>
-            Guardar Alterações
-          </button>
-        </form>
-      </div>
-
-      {/* Alterar Password */}
-      <div style={{
-        background: '#151b2e',
-        borderRadius: 12,
-        padding: 24,
-        marginBottom: 24,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
-      }}>
-        <h3 style={{ margin: '0 0 16px', fontSize: 18, color: '#f0f6fc' }}>Alterar Password</h3>
-        <form onSubmit={handleChangePassword}>
-          <label style={labelStyle}>Password Atual</label>
-          <input
-            type="password"
-            value={passwordForm.currentPassword}
-            onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-            style={inputStyle}
-            required
-          />
-          <label style={labelStyle}>Nova Password</label>
-          <input
-            type="password"
-            value={passwordForm.newPassword}
-            onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-            style={inputStyle}
-            required
-          />
-          <label style={labelStyle}>Confirmar Nova Password</label>
-          <input
-            type="password"
-            value={passwordForm.confirmPassword}
-            onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-            style={inputStyle}
-            required
-          />
-          <button type="submit" style={{
-            padding: '10px 24px',
-            background: '#1a237e',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            cursor: 'pointer',
-            fontSize: 14,
-            fontWeight: 500,
-          }}>
-            Alterar Password
-          </button>
-        </form>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <button onClick={() => setShowEditProfile(true)} style={btnPrimary}>✏️ Editar Perfil</button>
+          <button onClick={() => setShowPasswordModal(true)} style={btnSecondary}>🔑 Alterar Senha</button>
+        </div>
       </div>
 
       {/* Gestão de Utilizadores (Apenas Admin e Super Admin) */}
       {canManageUsers && (
         <div style={{
-          background: '#151b2e',
-          borderRadius: 12,
-          padding: 24,
-          marginBottom: 24,
+          background: '#151b2e', borderRadius: 12, padding: 24,
           boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
         }}>
-          <h3 style={{ margin: '0 0 16px', fontSize: 18, color: '#f0f6fc' }}>Adicionar Novo Utilizador</h3>
-          <form onSubmit={handleCreateUser}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div>
-                <label style={labelStyle}>Nome</label>
-                <input
-                  type="text"
-                  value={newUserForm.name}
-                  onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })}
-                  style={inputStyle}
-                  required
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>Email</label>
-                <input
-                  type="email"
-                  value={newUserForm.email}
-                  onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
-                  style={inputStyle}
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>Nome de Utilizador</label>
-                <input
-                  type="text"
-                  value={newUserForm.username}
-                  onChange={(e) => setNewUserForm({ ...newUserForm, username: e.target.value })}
-                  style={inputStyle}
-                  required
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>Password</label>
-                <input
-                  type="password"
-                  value={newUserForm.password}
-                  onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
-                  style={inputStyle}
-                  required
-                />
-              </div>
-              <div>
-                <label style={labelStyle}>Função</label>
-                <select
-                  value={newUserForm.role}
-                  onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value })}
-                  style={inputStyle}
-                >
-                  {ROLES.map(role => (
-                    <option key={role.value} value={role.value}>{role.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <button type="submit" style={{
-              padding: '10px 24px',
-              background: '#1a237e',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 6,
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 500,
-            }}>
-              Criar Utilizador
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <h3 style={{ margin: 0, fontSize: 18, color: '#f0f6fc' }}>Gestão de Utilizadores</h3>
+            <button
+              onClick={() => setShowUsersModal(true)}
+              style={{
+                padding: '8px 16px', background: '#1a237e', color: '#fff',
+                border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 14, fontWeight: 500
+              }}
+            >
+              Ver Lista
             </button>
-          </form>
+          </div>
+          <p style={{ color: '#b0b3b8', fontSize: 14, margin: 0 }}>
+            Apenas administradores podem criar novos acessos ao painel. Clique em "Ver Lista" para adicionar novos utilizadores.
+          </p>
+        </div>
+      )}
 
-          <div style={{ marginTop: 32 }}>
-            <h4 style={{ margin: '0 0 12px', fontSize: 16, color: '#f0f6fc' }}>Utilizadores Existentes</h4>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, color: '#f0f6fc' }}>
-                <thead>
-                  <tr style={{ background: '#0d1117', borderBottom: '1px solid #21262d' }}>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', color: '#b0b3b8' }}>Nome</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', color: '#b0b3b8' }}>Username</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', color: '#b0b3b8' }}>Email</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', color: '#b0b3b8' }}>Função</th>
-                    <th style={{ textAlign: 'left', padding: '12px 16px', color: '#b0b3b8' }}>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((u) => (
-                    <tr key={u.id} style={{ borderBottom: '1px solid #21262d' }}>
-                      <td style={{ padding: '12px 16px' }}>{u.name}</td>
-                      <td style={{ padding: '12px 16px' }}>{u.username}</td>
-                      <td style={{ padding: '12px 16px' }}>{u.email}</td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span style={{
-                          padding: '2px 8px',
-                          borderRadius: 4,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          background: u.role === 'superadmin' ? 'rgba(21, 101, 192, 0.2)' : u.role === 'admin' ? 'rgba(123, 31, 162, 0.2)' : u.role === 'technician' ? 'rgba(46, 125, 50, 0.2)' : 'rgba(230, 81, 0, 0.2)',
-                          color: u.role === 'superadmin' ? '#64b5f6' : u.role === 'admin' ? '#ce93d8' : u.role === 'technician' ? '#81c784' : '#ffb74d',
-                          textTransform: 'uppercase',
-                        }}>
-                          {u.role}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <button
-                          onClick={() => handleDeleteUser(u.id)}
-                          style={{
-                            padding: '4px 10px',
-                            background: '#f44336',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: 4,
-                            cursor: 'pointer',
-                            fontSize: 12,
-                          }}
-                        >
-                          Remover
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Modal Editar Perfil */}
+      {showEditProfile && (
+        <div style={modalOverlayStyle} onClick={() => setShowEditProfile(false)}>
+          <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 20px', color: '#f0f6fc' }}>Editar Informações</h3>
+            <form onSubmit={handleUpdateProfile}>
+              <label style={labelStyle}>Nome</label>
+              <input type="text" value={profileForm.name} onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })} style={inputStyle} required />
+              
+              <label style={labelStyle}>Nome de Utilizador</label>
+              <input type="text" value={profileForm.username} onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })} style={inputStyle} required />
+              
+              <label style={labelStyle}>Email</label>
+              <input type="email" value={profileForm.email} onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })} style={inputStyle} />
+              
+              <label style={labelStyle}>Telefone</label>
+              <input type="text" value={profileForm.phone} onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })} style={inputStyle} />
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
+                <button type="button" onClick={() => setShowEditProfile(false)} style={btnSecondary}>Cancelar</button>
+                <button type="submit" style={{ ...btnPrimary, marginLeft: 10 }}>Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Alterar Senha */}
+      {showPasswordModal && (
+        <div style={modalOverlayStyle} onClick={() => setShowPasswordModal(false)}>
+          <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 20px', color: '#f0f6fc' }}>Alterar Password</h3>
+            <form onSubmit={handleChangePassword}>
+              <label style={labelStyle}>Password Atual</label>
+              <input type="password" value={passwordForm.currentPassword} onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })} style={inputStyle} required />
+              
+              <label style={labelStyle}>Nova Password</label>
+              <input type="password" value={passwordForm.newPassword} onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })} style={inputStyle} required />
+              
+              <label style={labelStyle}>Confirmar Nova Password</label>
+              <input type="password" value={passwordForm.confirmPassword} onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })} style={inputStyle} required />
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
+                <button type="button" onClick={() => setShowPasswordModal(false)} style={btnSecondary}>Cancelar</button>
+                <button type="submit" style={{ ...btnPrimary, marginLeft: 10 }}>Alterar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Lista de Utilizadores */}
+      {showUsersModal && (
+        <div style={modalOverlayStyle} onClick={() => setShowUsersModal(false)}>
+          <div style={{ ...modalContentStyle, maxWidth: 700 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ margin: 0, color: '#f0f6fc' }}>Utilizadores Existentes</h3>
+              <button
+                onClick={() => { setShowAddUserModal(true); }}
+                style={{
+                  padding: '8px 16px', background: '#1a237e', color: '#fff',
+                  border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 24, lineHeight: 1, fontWeight: 'bold'
+                }}
+                title="Adicionar Novo Utilizador"
+              >
+                +
+              </button>
             </div>
+            
+            <div style={{ marginBottom: 20, maxHeight: 300, overflowY: 'auto' }}>
+              {users.length === 0 ? (
+                <p style={{ color: '#b0b3b8' }}>Sem utilizadores.</p>
+              ) : (
+                users.map((u) => (
+                  <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderBottom: '1px solid #21262d' }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: '50%', background: '#1a237e',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: '#fff'
+                    }}>
+                      {(u.name || 'U')[0].toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 15, color: '#f0f6fc' }}>{u.name}</div>
+                      <div style={{ fontSize: 12, color: '#b0b3b8' }}>{u.username} • {u.email || 'Sem email'}</div>
+                    </div>
+                    <span style={{
+                      padding: '2px 8px', borderRadius: 4, fontSize: 12, fontWeight: 600,
+                      background: u.role === 'superadmin' ? 'rgba(21, 101, 192, 0.2)' : 'rgba(123, 31, 162, 0.2)',
+                      color: u.role === 'superadmin' ? '#64b5f6' : '#ce93d8', textTransform: 'uppercase'
+                    }}>
+                      {u.role}
+                    </span>
+                    <button
+                      onClick={() => handleDeleteUser(u.id)}
+                      style={{
+                        padding: '4px 10px', background: '#f44336', color: '#fff',
+                        border: 'none', borderRadius: 4, cursor: 'pointer', fontSize: 12
+                      }}
+                    >
+                      Remover
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setShowUsersModal(false)} style={btnSecondary}>Fechar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Adicionar Novo Utilizador */}
+      {showAddUserModal && (
+        <div style={modalOverlayStyle} onClick={() => setShowAddUserModal(false)}>
+          <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 20px', color: '#f0f6fc' }}>Adicionar Novo Utilizador</h3>
+            <form onSubmit={handleCreateUser}>
+              <label style={labelStyle}>Nome</label>
+              <input type="text" value={newUserForm.name} onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })} style={inputStyle} required />
+              
+              <label style={labelStyle}>Email</label>
+              <input type="email" value={newUserForm.email} onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })} style={inputStyle} />
+              
+              <label style={labelStyle}>Nome de Utilizador</label>
+              <input type="text" value={newUserForm.username} onChange={(e) => setNewUserForm({ ...newUserForm, username: e.target.value })} style={inputStyle} required />
+              
+              <label style={labelStyle}>Password</label>
+              <input type="password" value={newUserForm.password} onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })} style={inputStyle} required />
+              
+              <label style={labelStyle}>Função</label>
+              <select value={newUserForm.role} onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value })} style={inputStyle}>
+                {ROLES.map(role => (
+                  <option key={role.value} value={role.value}>{role.label}</option>
+                ))}
+              </select>
+              
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
+                <button type="button" onClick={() => setShowAddUserModal(false)} style={btnSecondary}>Cancelar</button>
+                <button type="submit" style={{ ...btnPrimary, marginLeft: 10 }}>Criar Utilizador</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
