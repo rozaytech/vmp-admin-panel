@@ -55,6 +55,7 @@ export default function Profile() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Estados para controlar os modais
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUsersModal, setShowUsersModal] = useState(false);
@@ -65,23 +66,48 @@ export default function Profile() {
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [newUserForm, setNewUserForm] = useState({ name: '', email: '', username: '', password: '', role: 'viewer' });
 
-  const currentRole = localStorage.getItem('vmp_role') || 'admin';
-  const canManageUsers = currentRole === 'admin' || currentRole === 'superadmin';
+  // CORREÇÃO: A role é determinada pelo user vindo do backend (ou fallback para localStorage)
+  const [userRole, setUserRole] = useState(localStorage.getItem('vmp_role') || 'admin');
+  const canManageUsers = userRole === 'admin' || userRole === 'superadmin';
 
   useEffect(() => {
     loadProfile();
-    if (canManageUsers) loadUsers();
+    if (canManageUsers) {
+      loadUsers();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canManageUsers]);
 
   async function loadProfile() {
     try {
       const res = await API.get('/auth/me');
       setUser(res.data);
-      setProfileForm({ name: res.data.name || '', username: res.data.username || '', email: res.data.email || '', phone: res.data.phone || '' });
+      // Atualiza a role dinamicamente e guarda no estado
+      setUserRole(res.data.role || userRole); 
+      // Atualiza também no localStorage para manter consistência nas outras telas
+      localStorage.setItem('vmp_role', res.data.role || userRole);
+      
+      setProfileForm({ 
+        name: res.data.name || '', 
+        username: res.data.username || '',
+        email: res.data.email || '',
+        phone: res.data.phone || ''
+      });
     } catch (e) {
       console.error(e);
-      setUser({ name: localStorage.getItem('vmp_user_name') || 'Admin', username: 'admin', role: currentRole });
-      setProfileForm({ name: 'Admin', username: 'admin', email: '', phone: '' });
+      setUser({
+        name: localStorage.getItem('vmp_user_name') || 'Admin',
+        username: localStorage.getItem('vmp_username') || 'admin',
+        email: localStorage.getItem('vmp_user_email') || '',
+        phone: localStorage.getItem('vmp_user_phone') || '',
+        role: userRole
+      });
+      setProfileForm({ 
+        name: user?.name || 'Admin', 
+        username: user?.username || 'admin',
+        email: user?.email || '',
+        phone: user?.phone || ''
+      });
     } finally {
       setLoading(false);
     }
@@ -206,7 +232,7 @@ export default function Profile() {
               padding: '4px 10px', borderRadius: 12, fontSize: 12,
               background: 'rgba(21, 101, 192, 0.2)', color: '#64b5f6', textTransform: 'uppercase', fontWeight: 'bold'
             }}>
-              {user?.role || currentRole}
+              {userRole || 'admin'}
             </span>
           </p>
         </div>
