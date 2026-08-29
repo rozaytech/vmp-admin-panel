@@ -8,7 +8,7 @@ const PLANS = {
     name: "Basic",
     price: 3500,
     days: 30,
-    maxUsers: 2,
+    maxUsers: 10,      // Atualizado para 10
     maxProducts: 500,
     features: ["pos", "inventory", "cash_register", "basic_reports", "z_report"],
     description: "Ideal para pequenos negocios e bancas",
@@ -18,7 +18,7 @@ const PLANS = {
     name: "Pro",
     price: 7000,
     days: 30,
-    maxUsers: 5,
+    maxUsers: 30,      // Atualizado para 30
     maxProducts: 5000,
     features: [
       "pos",
@@ -36,7 +36,7 @@ const PLANS = {
   enterprise: {
     code: "enterprise",
     name: "Enterprise",
-    price: 150000,
+    price: 12500,      // Atualizado de 150000 para 12500 (mensal)
     days: 365,
     maxUsers: 999,
     maxProducts: 99999,
@@ -160,7 +160,7 @@ export default function CreateLicense() {
       >
         <option value="basic">Basic (3,500 MZN/mês)</option>
         <option value="pro">Pro (7,000 MZN/mês)</option>
-        <option value="enterprise">Enterprise (150,000 MZN/ano)</option>
+        <option value="enterprise">Enterprise (12,500 MZN/mês)</option>
       </select>
 
       <input

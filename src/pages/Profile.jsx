@@ -14,33 +14,48 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
 
-  const [profileForm, setProfileForm] = useState({ name: '', username: '' });
+  const [profileForm, setProfileForm] = useState({ name: '', username: '', email: '', phone: '' });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [newUserForm, setNewUserForm] = useState({ name: '', email: '', username: '', password: '', role: 'viewer' });
 
   const currentRole = localStorage.getItem('vmp_role') || 'admin';
 
+  // Admin e Super Admin podem gerir utilizadores
+  const canManageUsers = currentRole === 'admin' || currentRole === 'superadmin';
+
   useEffect(() => {
     loadProfile();
-    if (currentRole === 'superadmin') {
+    if (canManageUsers) {
       loadUsers();
     }
-  }, [currentRole]);
+  }, [canManageUsers]);
 
   async function loadProfile() {
     try {
       const res = await API.get('/auth/me');
       setUser(res.data);
-      setProfileForm({ name: res.data.name || '', username: res.data.username || '' });
+      setProfileForm({ 
+        name: res.data.name || '', 
+        username: res.data.username || '',
+        email: res.data.email || '',
+        phone: res.data.phone || ''
+      });
     } catch (e) {
       console.error(e);
       // Fallback se API não existir
       setUser({
         name: localStorage.getItem('vmp_user_name') || 'Admin',
         username: localStorage.getItem('vmp_username') || 'admin',
+        email: localStorage.getItem('vmp_user_email') || '',
+        phone: localStorage.getItem('vmp_user_phone') || '',
         role: currentRole
       });
-      setProfileForm({ name: user.name || 'Admin', username: user.username || 'admin' });
+      setProfileForm({ 
+        name: user?.name || 'Admin', 
+        username: user?.username || 'admin',
+        email: user?.email || '',
+        phone: user?.phone || ''
+      });
     } finally {
       setLoading(false);
     }
@@ -148,7 +163,55 @@ export default function Profile() {
 
       {message && <div style={messageStyle}>{message.text}</div>}
 
-      {/* Informações do Perfil */}
+      {/* Informações do Utilizador Logado */}
+      <div style={{
+        background: '#151b2e',
+        borderRadius: 12,
+        padding: 24,
+        marginBottom: 24,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 20,
+        flexWrap: 'wrap'
+      }}>
+        <div style={{
+          width: 60, height: 60,
+          borderRadius: '50%',
+          background: '#1a237e',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 28, fontWeight: 'bold', color: '#fff'
+        }}>
+          {(user?.name || 'A')[0].toUpperCase()}
+        </div>
+        <div>
+          <h3 style={{ margin: '0 0 6px', fontSize: 20, color: '#f0f6fc' }}>{user?.name || 'Admin'}</h3>
+          <p style={{ margin: 0, fontSize: 14, color: '#b0b3b8' }}>
+            <strong>Username:</strong> {user?.username}
+          </p>
+          <p style={{ margin: 0, fontSize: 14, color: '#b0b3b8' }}>
+            <strong>Email:</strong> {user?.email || 'Não definido'}
+          </p>
+          <p style={{ margin: 0, fontSize: 14, color: '#b0b3b8' }}>
+            <strong>Telefone:</strong> {user?.phone || 'Não definido'}
+          </p>
+          <p style={{ margin: '6px 0 0', fontSize: 12 }}>
+            <span style={{
+              padding: '4px 10px',
+              borderRadius: 12,
+              fontSize: 12,
+              background: 'rgba(21, 101, 192, 0.2)',
+              color: '#64b5f6',
+              textTransform: 'uppercase',
+              fontWeight: 'bold'
+            }}>
+              {user?.role || currentRole}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      {/* Informações Pessoais */}
       <div style={{
         background: '#151b2e',
         borderRadius: 12,
@@ -156,24 +219,48 @@ export default function Profile() {
         marginBottom: 24,
         boxShadow: '0 2px 8px rgba(0,0,0,0.4)'
       }}>
-        <h3 style={{ margin: '0 0 16px', fontSize: 18, color: '#f0f6fc' }}>Informações Pessoais</h3>
+        <h3 style={{ margin: '0 0 16px', fontSize: 18, color: '#f0f6fc' }}>Editar Informações</h3>
         <form onSubmit={handleUpdateProfile}>
-          <label style={labelStyle}>Nome</label>
-          <input
-            type="text"
-            value={profileForm.name}
-            onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-            style={inputStyle}
-            required
-          />
-          <label style={labelStyle}>Nome de Utilizador</label>
-          <input
-            type="text"
-            value={profileForm.username}
-            onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
-            style={inputStyle}
-            required
-          />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div>
+              <label style={labelStyle}>Nome</label>
+              <input
+                type="text"
+                value={profileForm.name}
+                onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                style={inputStyle}
+                required
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Nome de Utilizador</label>
+              <input
+                type="text"
+                value={profileForm.username}
+                onChange={(e) => setProfileForm({ ...profileForm, username: e.target.value })}
+                style={inputStyle}
+                required
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Email</label>
+              <input
+                type="email"
+                value={profileForm.email}
+                onChange={(e) => setProfileForm({ ...profileForm, email: e.target.value })}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Telefone</label>
+              <input
+                type="text"
+                value={profileForm.phone}
+                onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                style={inputStyle}
+              />
+            </div>
+          </div>
           <button type="submit" style={{
             padding: '10px 24px',
             background: '#1a237e',
@@ -238,8 +325,8 @@ export default function Profile() {
         </form>
       </div>
 
-      {/* Gestão de Utilizadores (Apenas Super Admin) */}
-      {currentRole === 'superadmin' && (
+      {/* Gestão de Utilizadores (Apenas Admin e Super Admin) */}
+      {canManageUsers && (
         <div style={{
           background: '#151b2e',
           borderRadius: 12,
@@ -249,47 +336,59 @@ export default function Profile() {
         }}>
           <h3 style={{ margin: '0 0 16px', fontSize: 18, color: '#f0f6fc' }}>Adicionar Novo Utilizador</h3>
           <form onSubmit={handleCreateUser}>
-            <label style={labelStyle}>Nome</label>
-            <input
-              type="text"
-              value={newUserForm.name}
-              onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })}
-              style={inputStyle}
-              required
-            />
-            <label style={labelStyle}>Email</label>
-            <input
-              type="email"
-              value={newUserForm.email}
-              onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
-              style={inputStyle}
-            />
-            <label style={labelStyle}>Nome de Utilizador</label>
-            <input
-              type="text"
-              value={newUserForm.username}
-              onChange={(e) => setNewUserForm({ ...newUserForm, username: e.target.value })}
-              style={inputStyle}
-              required
-            />
-            <label style={labelStyle}>Password</label>
-            <input
-              type="password"
-              value={newUserForm.password}
-              onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
-              style={inputStyle}
-              required
-            />
-            <label style={labelStyle}>Função</label>
-            <select
-              value={newUserForm.role}
-              onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value })}
-              style={inputStyle}
-            >
-              {ROLES.map(role => (
-                <option key={role.value} value={role.value}>{role.label}</option>
-              ))}
-            </select>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div>
+                <label style={labelStyle}>Nome</label>
+                <input
+                  type="text"
+                  value={newUserForm.name}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Email</label>
+                <input
+                  type="email"
+                  value={newUserForm.email}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Nome de Utilizador</label>
+                <input
+                  type="text"
+                  value={newUserForm.username}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, username: e.target.value })}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Password</label>
+                <input
+                  type="password"
+                  value={newUserForm.password}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, password: e.target.value })}
+                  style={inputStyle}
+                  required
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Função</label>
+                <select
+                  value={newUserForm.role}
+                  onChange={(e) => setNewUserForm({ ...newUserForm, role: e.target.value })}
+                  style={inputStyle}
+                >
+                  {ROLES.map(role => (
+                    <option key={role.value} value={role.value}>{role.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <button type="submit" style={{
               padding: '10px 24px',
               background: '#1a237e',

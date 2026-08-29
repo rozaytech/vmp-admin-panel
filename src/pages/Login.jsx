@@ -2,7 +2,7 @@ import { useState } from 'react';
 import API from '../api/client';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -12,15 +12,16 @@ export default function Login() {
       setLoading(true);
       setError('');
 
-      const trimmedEmail = email.trim();
+      const trimmedUsername = username.trim();
       const trimmedPassword = password.trim();
 
-      console.log('TENTANDO LOGIN:', trimmedEmail);
+      console.log('TENTANDO LOGIN:', trimmedUsername);
 
-      // Mock login para testes
-      if (trimmedEmail === 'admin@vmp.com' && trimmedPassword === 'admin123') {
+      // Mock login para testes (usando username e password)
+      if (trimmedUsername === 'admin' && trimmedPassword === 'admin123') {
         const mockToken = 'mock-token-' + Date.now();
         localStorage.setItem('vmp_admin_token', mockToken);
+        localStorage.setItem('vmp_role', 'superadmin');
         console.log('LOGIN MOCK SUCCESS');
         // CORRIGIDO: window.location força reload e re-render do App
         window.location.href = '/';
@@ -29,9 +30,9 @@ export default function Login() {
 
       console.log('MOCK LOGIN FALHOU, tentando API...');
 
-      // Login real via API
+      // Login real via API (agora com username)
       const res = await API.post('/auth/login', {
-        email: trimmedEmail,
+        username: trimmedUsername,
         password: trimmedPassword,
       });
 
@@ -79,13 +80,13 @@ export default function Login() {
 
         <div style={{ marginBottom: 20 }}>
           <label style={{ display: 'block', marginBottom: 6, fontSize: 14, color: '#555', fontWeight: 500 }}>
-            Email
+            Username
           </label>
           <input
-            type="email"
-            placeholder="seu@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            placeholder="admin"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             style={{
               width: '100%',
               padding: 12,
