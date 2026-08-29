@@ -55,7 +55,6 @@ export default function Profile() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Estados para controlar os modais
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUsersModal, setShowUsersModal] = useState(false);
@@ -67,16 +66,12 @@ export default function Profile() {
   const [newUserForm, setNewUserForm] = useState({ name: '', email: '', username: '', password: '', role: 'viewer' });
 
   const [userRole, setUserRole] = useState(localStorage.getItem('vmp_role') || 'admin');
-  
-  // CORREÇÃO: Normaliza a role para aceitar "SUPER_ADMIN", "superadmin", "Admin", etc.
   const normalizedRole = (userRole || '').toLowerCase().replace(/[\s_-]/g, '');
   const canManageUsers = normalizedRole === 'admin' || normalizedRole === 'superadmin';
 
   useEffect(() => {
     loadProfile();
-    if (canManageUsers) {
-      loadUsers();
-    }
+    if (canManageUsers) loadUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [canManageUsers]);
 
@@ -84,8 +79,6 @@ export default function Profile() {
     try {
       const res = await API.get('/auth/me');
       setUser(res.data);
-      
-      // Atualiza a role dinamicamente e guarda no localStorage normalizada
       const rawRole = res.data.role || userRole;
       const cleanRole = rawRole.toLowerCase().replace(/[\s_-]/g, '');
       localStorage.setItem('vmp_role', cleanRole);
@@ -99,19 +92,8 @@ export default function Profile() {
       });
     } catch (e) {
       console.error(e);
-      setUser({
-        name: localStorage.getItem('vmp_user_name') || 'Admin',
-        username: localStorage.getItem('vmp_username') || 'admin',
-        email: localStorage.getItem('vmp_user_email') || '',
-        phone: localStorage.getItem('vmp_user_phone') || '',
-        role: userRole
-      });
-      setProfileForm({ 
-        name: user?.name || 'Admin', 
-        username: user?.username || 'admin',
-        email: user?.email || '',
-        phone: user?.phone || ''
-      });
+      setUser({ name: localStorage.getItem('vmp_user_name') || 'Admin', username: localStorage.getItem('vmp_username') || 'admin', email: localStorage.getItem('vmp_user_email') || '', phone: localStorage.getItem('vmp_user_phone') || '', role: userRole });
+      setProfileForm({ name: user?.name || 'Admin', username: user?.username || 'admin', email: user?.email || '', phone: user?.phone || '' });
     } finally {
       setLoading(false);
     }
@@ -123,6 +105,7 @@ export default function Profile() {
       setUsers(res.data.users || []);
     } catch (e) {
       console.error('Erro ao carregar usuários:', e);
+      setMessage({ type: 'error', text: e.response?.data?.message || 'Erro ao carregar utilizadores.' });
     }
   }
 
@@ -166,7 +149,7 @@ export default function Profile() {
       setShowAddUserModal(false);
       loadUsers();
     } catch (e) {
-      setMessage({ type: 'error', text: e.response?.data?.message || 'Erro ao criar usuário.' });
+      setMessage({ type: 'error', text: e.response?.data?.details || e.response?.data?.message || 'Erro ao criar usuário.' });
     }
   }
 
