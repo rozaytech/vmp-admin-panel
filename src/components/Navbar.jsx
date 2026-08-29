@@ -1,38 +1,48 @@
 import { Link } from "react-router-dom";
 
-export default function Navbar() {
+export default function Navbar({ onMenuClick, isMobile }) {
   function logout() {
-    // REMOVE A CHAVE CORRETA USADA NO App.jsx
+    // Remove as chaves corretas usadas no App.jsx
     localStorage.removeItem("vmp_admin_token"); 
-    localStorage.removeItem("vmp_admin_role");
-    // FORÇA O RECARREGAMENTO PARA LIMPAR O CONTEXTO DO REACT
+    localStorage.removeItem("vmp_role");
+    // Força o recarregamento para limpar o contexto do React
     window.location.href = "/login";
   }
 
   return (
     <div style={styles.container}>
       <div style={styles.left}>
+        {/* Hamburger apenas em mobile */}
+        {isMobile && (
+          <button 
+            onClick={onMenuClick} 
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'white',
+              fontSize: 24,
+              cursor: 'pointer',
+              marginRight: 10,
+            }}
+          >
+            ☰
+          </button>
+        )}
         <h3 style={{ margin: 0 }}>VMP Admin</h3>
       </div>
 
-      <div style={styles.center}>
-        <Link style={styles.link} to="/">
-          Dashboard
-        </Link>
-
-        <Link style={styles.link} to="/licenses">
-          Licenças
-        </Link>
-
-        <Link style={styles.link} to="/licenses/create">
-          Criar Licença
-        </Link>
-      </div>
+      {/* Links centrais: ocultos em mobile (ficam no sidebar) */}
+      {!isMobile && (
+        <div style={styles.center}>
+          <Link style={styles.link} to="/">Dashboard</Link>
+          <Link style={styles.link} to="/licenses">Licenças</Link>
+          <Link style={styles.link} to="/licenses/create">Criar Licença</Link>
+          <Link style={styles.link} to="/profile">Perfil</Link>
+        </div>
+      )}
 
       <div style={styles.right}>
-        <button onClick={logout} style={styles.button}>
-          Sair
-        </button>
+        <button onClick={logout} style={styles.button}>Sair</button>
       </div>
     </div>
   );
@@ -50,10 +60,14 @@ const styles = {
   },
   left: {
     fontWeight: "bold",
+    display: 'flex',
+    alignItems: 'center',
   },
   center: {
     display: "flex",
     gap: "20px",
+    flex: 1,
+    justifyContent: 'center',
   },
   right: {},
   link: {

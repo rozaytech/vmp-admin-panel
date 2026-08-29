@@ -7,4 +7,13 @@ const API = axios.create({
   },
 });
 
+// Interceptor para adicionar token automaticamente
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('vmp_admin_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export default API;

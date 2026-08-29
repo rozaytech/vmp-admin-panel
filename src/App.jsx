@@ -11,6 +11,7 @@ import Subscriptions from './pages/Subscriptions';
 import ActivationRequests from './pages/ActivationRequests';
 import Billing from './pages/Billing';
 import EmailLogs from './pages/EmailLogs';
+import Profile from './pages/Profile';
 
 // TEMA DARK NAVY
 const darkTheme = createTheme({
@@ -80,6 +81,7 @@ function App() {
             <Route path="requests" element={<ActivationRequests />} />
             <Route path="billing" element={<Billing />} />
             <Route path="emails" element={<EmailLogs />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>
       </BrowserRouter>
