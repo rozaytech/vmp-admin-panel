@@ -101,7 +101,8 @@ export default function Profile() {
 
   async function loadUsers() {
     try {
-      const res = await API.get('/users');
+      // CORREÇÃO: Adicionado '/admin' ao caminho da API
+      const res = await API.get('/admin/users');
       setUsers(res.data.users || []);
     } catch (e) {
       console.error('Erro ao carregar usuários:', e);
@@ -115,7 +116,6 @@ export default function Profile() {
     try {
       await API.put('/auth/profile', profileForm);
       setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
-      setUser(profileForm);
       setShowEditProfile(false);
     } catch (e) {
       setMessage({ type: 'error', text: e.response?.data?.message || 'Erro ao atualizar perfil.' });
@@ -143,7 +143,8 @@ export default function Profile() {
     e.preventDefault();
     setMessage(null);
     try {
-      await API.post('/users/create', newUserForm);
+      // CORREÇÃO: Adicionado '/admin' ao caminho da API
+      await API.post('/admin/users/create', newUserForm);
       setMessage({ type: 'success', text: 'Usuário criado com sucesso!' });
       setNewUserForm({ name: '', email: '', username: '', password: '', role: 'viewer' });
       setShowAddUserModal(false);
@@ -155,7 +156,8 @@ export default function Profile() {
 
   function handleDeleteUser(id) {
     if (!confirm('Deseja realmente remover este usuário?')) return;
-    API.delete(`/users/${id}`).then(() => {
+    // CORREÇÃO: Adicionado '/admin' ao caminho da API
+    API.delete(`/admin/users/${id}`).then(() => {
       setMessage({ type: 'success', text: 'Usuário removido com sucesso!' });
       loadUsers();
     }).catch(e => {
