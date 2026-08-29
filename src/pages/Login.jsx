@@ -17,20 +17,7 @@ export default function Login() {
 
       console.log('TENTANDO LOGIN:', trimmedUsername);
 
-      // Mock login para testes (usando username e password)
-      if (trimmedUsername === 'admin' && trimmedPassword === 'admin123') {
-        const mockToken = 'mock-token-' + Date.now();
-        localStorage.setItem('vmp_admin_token', mockToken);
-        localStorage.setItem('vmp_role', 'superadmin');
-        console.log('LOGIN MOCK SUCCESS');
-        // CORRIGIDO: window.location força reload e re-render do App
-        window.location.href = '/';
-        return;
-      }
-
-      console.log('MOCK LOGIN FALHOU, tentando API...');
-
-      // Login real via API (agora com username)
+      // Login real via API
       const res = await API.post('/auth/login', {
         username: trimmedUsername,
         password: trimmedPassword,
@@ -44,7 +31,7 @@ export default function Login() {
       localStorage.setItem('vmp_admin_token', res.data.token);
       localStorage.setItem('vmp_role', res.data.role || 'admin');
       console.log('LOGIN API SUCCESS');
-      // CORRIGIDO: window.location força reload
+      // Força reload para re-render do App
       window.location.href = '/';
     } catch (err) {
       console.log('LOGIN ERROR:', err);
