@@ -66,9 +66,11 @@ export default function Profile() {
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [newUserForm, setNewUserForm] = useState({ name: '', email: '', username: '', password: '', role: 'viewer' });
 
-  // CORREÇÃO: A role é determinada pelo user vindo do backend (ou fallback para localStorage)
   const [userRole, setUserRole] = useState(localStorage.getItem('vmp_role') || 'admin');
-  const canManageUsers = userRole === 'admin' || userRole === 'superadmin';
+  
+  // CORREÇÃO: Normaliza a role para aceitar "SUPER_ADMIN", "superadmin", "Admin", etc.
+  const normalizedRole = (userRole || '').toLowerCase().replace(/[\s_-]/g, '');
+  const canManageUsers = normalizedRole === 'admin' || normalizedRole === 'superadmin';
 
   useEffect(() => {
     loadProfile();
@@ -82,10 +84,12 @@ export default function Profile() {
     try {
       const res = await API.get('/auth/me');
       setUser(res.data);
-      // Atualiza a role dinamicamente e guarda no estado
-      setUserRole(res.data.role || userRole); 
-      // Atualiza também no localStorage para manter consistência nas outras telas
-      localStorage.setItem('vmp_role', res.data.role || userRole);
+      
+      // Atualiza a role dinamicamente e guarda no localStorage normalizada
+      const rawRole = res.data.role || userRole;
+      const cleanRole = rawRole.toLowerCase().replace(/[\s_-]/g, '');
+      localStorage.setItem('vmp_role', cleanRole);
+      setUserRole(cleanRole);
       
       setProfileForm({ 
         name: res.data.name || '', 
@@ -232,7 +236,7 @@ export default function Profile() {
               padding: '4px 10px', borderRadius: 12, fontSize: 12,
               background: 'rgba(21, 101, 192, 0.2)', color: '#64b5f6', textTransform: 'uppercase', fontWeight: 'bold'
             }}>
-              {userRole || 'admin'}
+              {normalizedRole || 'admin'}
             </span>
           </p>
         </div>
