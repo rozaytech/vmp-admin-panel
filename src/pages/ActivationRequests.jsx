@@ -6,6 +6,10 @@ export default function ActivationRequests() {
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
+  // ADIÇÃO: Verificação de permissão para esconder botões de escrita
+  const role = (localStorage.getItem('vmp_role') || '').toLowerCase().replace(/[\s_-]/g, '');
+  const isAdmin = role === 'admin' || role === 'superadmin';
+
   useEffect(() => {
     load();
   }, [filter]);
@@ -147,7 +151,8 @@ export default function ActivationRequests() {
                         {new Date(req.created_at).toLocaleDateString('pt-PT')}
                       </td>
                       <td style={{ padding: '12px 16px' }}>
-                        {req.status === 'pending' && (
+                        {/* ADIÇÃO: Botões de ação apenas para administradores */}
+                        {isAdmin && req.status === 'pending' && (
                           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                             <button
                               onClick={() => approve(req.id)}
@@ -180,6 +185,9 @@ export default function ActivationRequests() {
                               ❌ Rejeitar
                             </button>
                           </div>
+                        )}
+                        {!isAdmin && req.status === 'pending' && (
+                          <span style={{ fontSize: 12, color: '#b0b3b8' }}>Sem permissão</span>
                         )}
                         {req.status === 'approved' && (
                           <div>

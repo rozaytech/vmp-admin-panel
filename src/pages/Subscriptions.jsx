@@ -6,6 +6,10 @@ export default function Subscriptions() {
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
+  // ADIÇÃO: Verificação de permissão (mantida por consistência)
+  const role = (localStorage.getItem('vmp_role') || '').toLowerCase().replace(/[\s_-]/g, '');
+  const isAdmin = role === 'admin' || role === 'superadmin';
+
   useEffect(() => {
     load();
   }, [filter]);

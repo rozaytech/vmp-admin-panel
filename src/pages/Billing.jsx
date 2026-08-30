@@ -74,6 +74,10 @@ export default function Billing() {
     days: 30,
   });
 
+  // ADIÇÃO: Verificação de permissão para esconder botões de escrita
+  const role = (localStorage.getItem('vmp_role') || '').toLowerCase().replace(/[\s_-]/g, '');
+  const isAdmin = role === 'admin' || role === 'superadmin';
+
   useEffect(() => {
     load();
   }, [period]);
@@ -257,7 +261,8 @@ export default function Billing() {
         ))}
       </div>
 
-      {/* Criar subscricao - Corrigido fundo e inputs */}
+      {/* ADIÇÃO: Criar subscrição apenas para administradores */}
+      {isAdmin && (
       <div
         style={{
           background: "#151b2e",
@@ -357,6 +362,7 @@ export default function Billing() {
           </button>
         </div>
       </div>
+      )}
 
       {/* Lista de subscrições - Corrigido fundo e cores das tabelas */}
       <h3 style={{ margin: "0 0 16px", fontSize: 18, color: "#f0f6fc" }}>Subscrições</h3>
@@ -517,7 +523,8 @@ export default function Billing() {
                         {isExpired ? "0" : daysLeft}
                       </td>
                       <td style={{ padding: "12px 16px" }}>
-                        {s.payment_status !== "paid" && !isExpired && (
+                        {/* ADIÇÃO: Botão de simular pagamento apenas para administradores */}
+                        {isAdmin && s.payment_status !== "paid" && !isExpired && (
                           <button
                             onClick={() => simulatePay(s.id)}
                             style={{

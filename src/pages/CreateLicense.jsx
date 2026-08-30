@@ -71,6 +71,10 @@ export default function CreateLicense() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // ADIÇÃO: Verificação de permissão para esconder o formulário de escrita
+  const role = (localStorage.getItem('vmp_role') || '').toLowerCase().replace(/[\s_-]/g, '');
+  const isAdmin = role === 'admin' || role === 'superadmin';
+
   async function generate() {
     try {
       setLoading(true);
@@ -102,6 +106,9 @@ export default function CreateLicense() {
     <div style={{ padding: 40 }}>
       <h2 style={{ margin: "0 0 24px", fontSize: 28, color: "#f0f6fc" }}>Criar Licença</h2>
 
+      {/* ADIÇÃO: Formulário apenas para administradores */}
+      {isAdmin ? (
+        <>
       <input
         placeholder="Machine ID"
         value={machineId}
@@ -282,6 +289,12 @@ export default function CreateLicense() {
               resize: "vertical"
             }}
           />
+        </div>
+      )}
+        </>
+      ) : (
+        <div style={{ padding: 20, backgroundColor: "#1a2236", borderRadius: 8, color: "#b0b3b8" }}>
+          Acesso negado. Apenas administradores podem criar novas licenças.
         </div>
       )}
     </div>

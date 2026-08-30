@@ -49,6 +49,10 @@ export default function Licenses() {
   const [featuresModal, setFeaturesModal] = useState(null);
   const [selectedFeatures, setSelectedFeatures] = useState([]);
 
+  // ADIÇÃO: Verificação de permissão para esconder botões de escrita
+  const role = (localStorage.getItem('vmp_role') || '').toLowerCase().replace(/[\s_-]/g, '');
+  const isAdmin = role === 'admin' || role === 'superadmin';
+
   useEffect(() => {
     load();
   }, [filter]);
@@ -451,7 +455,9 @@ export default function Licenses() {
                         {l.machine_id?.substring(0, 20)}...
                       </td>
                       <td style={{ padding: "12px 16px" }}>
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        {/* ADIÇÃO: Botões de ação apenas para administradores */}
+                        {isAdmin && (
+                          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                           <button
                             onClick={() => openEdit(l)}
                             title="Editar licença"
@@ -577,6 +583,7 @@ export default function Licenses() {
                             Apagar
                           </button>
                         </div>
+                        )}
                       </td>
                     </tr>
                   );
