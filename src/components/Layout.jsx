@@ -14,12 +14,22 @@ const menuItems = [
   { path: '/profile', label: 'Perfil', icon: '👤' },
 ];
 
+// ADIÇÃO: Itens que são proibidos para viewers
+const restrictedItems = ['/licenses/create', '/billing'];
+
 export default function Layout() {
   const location = useLocation();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const closeSidebar = () => setSidebarOpen(false);
+
+  // ADIÇÃO: Verifica a role do usuário
+  const role = (localStorage.getItem('vmp_role') || '').toLowerCase().replace(/[\s_-]/g, '');
+  const isAdmin = role === 'admin' || role === 'superadmin';
+
+  // ADIÇÃO: Filtra itens do menu para viewers
+  const filteredMenuItems = isAdmin ? menuItems : menuItems.filter(item => !restrictedItems.includes(item.path));
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Segoe UI, sans-serif', background: '#0d1117' }}>
@@ -41,7 +51,7 @@ export default function Layout() {
         </div>
 
         <nav style={{ padding: '16px 0' }}>
-          {menuItems.map((item) => {
+          {filteredMenuItems.map((item) => {
             const active = location.pathname === item.path;
             return (
               <Link

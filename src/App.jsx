@@ -39,7 +39,6 @@ const darkTheme = createTheme({
         },
       },
     },
-    // CORREÇÃO DA OPACIDADE: Força o fundo escuro nos cartões das outras telas
     MuiPaper: {
       styleOverrides: {
         root: {
@@ -61,6 +60,18 @@ const darkTheme = createTheme({
   },
 });
 
+// ADIÇÃO: Verifica a role e redireciona viewers para Dashboard
+function RequireAdminRole({ children }) {
+  const role = (localStorage.getItem('vmp_role') || '').toLowerCase().replace(/[\s_-]/g, '');
+  const isAdmin = role === 'admin' || role === 'superadmin';
+  
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
+}
+
 function App() {
   const isAuth = localStorage.getItem('vmp_admin_token');
 
@@ -76,10 +87,12 @@ function App() {
           >
             <Route index element={<Dashboard />} />
             <Route path="licenses" element={<Licenses />} />
-            <Route path="licenses/create" element={<CreateLicense />} />
+            {/* ADIÇÃO: Protege a rota de criação para apenas admins */}
+            <Route path="licenses/create" element={<RequireAdminRole><CreateLicense /></RequireAdminRole>} />
             <Route path="subscriptions" element={<Subscriptions />} />
             <Route path="requests" element={<ActivationRequests />} />
-            <Route path="billing" element={<Billing />} />
+            {/* ADIÇÃO: Protege a rota de faturação para apenas admins */}
+            <Route path="billing" element={<RequireAdminRole><Billing /></RequireAdminRole>} />
             <Route path="emails" element={<EmailLogs />} />
             <Route path="profile" element={<Profile />} />
           </Route>
