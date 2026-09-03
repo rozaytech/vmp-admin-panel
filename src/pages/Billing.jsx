@@ -8,7 +8,7 @@ const PLANS = {
     name: "Basic",
     price: 3500,
     days: 30,
-    maxUsers: 2,
+    maxUsers: 10,      // Atualizado para 10
     maxProducts: 500,
     features: ["pos", "inventory", "cash_register", "basic_reports", "z_report"],
     description: "Ideal para pequenos negocios e bancas",
@@ -18,7 +18,7 @@ const PLANS = {
     name: "Pro",
     price: 7000,
     days: 30,
-    maxUsers: 5,
+    maxUsers: 30,      // Atualizado para 30
     maxProducts: 5000,
     features: [
       "pos",
@@ -36,9 +36,9 @@ const PLANS = {
   enterprise: {
     code: "enterprise",
     name: "Enterprise",
-    price: 150000,
-    days: 365,
-    maxUsers: 999,
+    price: 12500,      // Atualizado para 12.500 MZN/mês
+    days: 30,          // Atualizado para 30 dias
+    maxUsers: 999,     // Mantido em 999
     maxProducts: 99999,
     features: [
       "pos",
@@ -326,7 +326,7 @@ export default function Billing() {
           >
             <option value="basic">Basic (3,500 MZN/mês)</option>
             <option value="pro">Pro (7,000 MZN/mês)</option>
-            <option value="enterprise">Enterprise (150,000 MZN/ano)</option>
+            <option value="enterprise">Enterprise (12,500 MZN/mês)</option>
           </select>
           <input
             type="number"
@@ -462,7 +462,7 @@ export default function Billing() {
                         </span>
                         <div style={{ fontSize: 11, color: "#b0b3b8", marginTop: 4 }}>
                           {PLANS[s.plan]?.price?.toLocaleString("pt-PT")} MZN
-                          {s.plan === "enterprise" ? "/ano" : "/mês"}
+                          /mês
                         </div>
                       </td>
                       <td style={{ padding: "12px 16px" }}>

@@ -36,9 +36,9 @@ const PLANS = {
   enterprise: {
     code: "enterprise",
     name: "Enterprise",
-    price: 12500,      // Atualizado de 150000 para 12500 (mensal)
-    days: 365,
-    maxUsers: 999,
+    price: 12500,
+    days: 30,          // CORRIGIDO: De 365 para 30
+    maxUsers: 999,     // Mantido em 999
     maxProducts: 99999,
     features: [
       "pos",
@@ -64,7 +64,7 @@ export default function CreateLicense() {
   const [machineId, setMachineId] = useState("");
   const [client, setClient] = useState("");
   const [plan, setPlan] = useState("enterprise");
-  const [days, setDays] = useState(365);
+  const [days, setDays] = useState(30); // Atualizado para 30
 
   const [license, setLicense] = useState("");
   const [subscription, setSubscription] = useState(null);

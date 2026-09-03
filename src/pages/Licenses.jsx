@@ -7,7 +7,7 @@ const PLANS = {
     name: "Basic",
     price: 3500,
     days: 30,
-    maxUsers: 2,
+    maxUsers: 10,      // Atualizado para 10
     maxProducts: 500,
     features: ["pos", "inventory", "cash_register", "basic_reports", "z_report", "settings", "multi_warehouse", "customers", "promotions", "analytics"],
     description: "Ideal para pequenos negócios e bancas",
@@ -17,7 +17,7 @@ const PLANS = {
     name: "Pro",
     price: 7000,
     days: 30,
-    maxUsers: 5,
+    maxUsers: 30,      // Atualizado para 30
     maxProducts: 5000,
     features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "settings", "profit_margin"],
     description: "Para lojas em crescimento",
@@ -25,9 +25,9 @@ const PLANS = {
   enterprise: {
     code: "enterprise",
     name: "Enterprise",
-    price: 150000,
-    days: 365,
-    maxUsers: 999,
+    price: 12500,      // Atualizado para 12.500 MZN/mês
+    days: 30,          // Atualizado para 30 dias
+    maxUsers: 999,     // Mantido em 999
     maxProducts: 99999,
     features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "accounting", "profit_margin", "remote_dashboard", "priority_support", "api_access", "cloud_backup", "settings"],
     description: "Para cadeias e grandes estabelecimentos",
@@ -398,7 +398,7 @@ export default function Licenses() {
                         </span>
                         <div style={{ fontSize: 11, color: "#b0b3b8", marginTop: 4 }}>
                           {PLANS[l.plan]?.price?.toLocaleString("pt-PT")} MZN
-                          {l.plan === "enterprise" ? "/ano" : "/mês"}
+                          /mês
                         </div>
                       </td>
                       <td style={{ padding: "12px 16px" }}>
@@ -745,7 +745,7 @@ export default function Licenses() {
               <br />
               Preço: <strong>
                 {PLANS[transferModal.plan]?.price?.toLocaleString("pt-PT")} MZN
-                {transferModal.plan === "enterprise" ? "/ano" : "/mês"}
+                /mês
               </strong>
               <br />
               Dias restantes:{" "}
@@ -987,7 +987,7 @@ export default function Licenses() {
               >
                 <option value="basic">Basic (3.500 MZN/mês)</option>
                 <option value="pro">Pro (7.000 MZN/mês)</option>
-                <option value="enterprise">Enterprise (150.000 MZN/ano)</option>
+                <option value="enterprise">Enterprise (12.500 MZN/mês)</option>
               </select>
             </div>
 
