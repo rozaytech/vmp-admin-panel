@@ -9,7 +9,7 @@ const PLANS = {
     days: 30,
     maxUsers: 10,      // Atualizado para 10
     maxProducts: 500,
-    features: ["pos", "inventory", "cash_register", "basic_reports", "z_report", "settings", "multi_warehouse", "customers", "promotions", "analytics"],
+    features: ["pos", "inventory", "cash_register", "basic_reports", "z_report", "settings", "multi_warehouse", "customers", "promotions", "analytics", "users"], // ADIÇÃO
     description: "Ideal para pequenos negócios e bancas",
   },
   pro: {
@@ -19,7 +19,7 @@ const PLANS = {
     days: 30,
     maxUsers: 30,      // Atualizado para 30
     maxProducts: 5000,
-    features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "settings", "profit_margin"],
+    features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "settings", "profit_margin", "users"], // ADIÇÃO
     description: "Para lojas em crescimento",
   },
   enterprise: {
@@ -29,13 +29,13 @@ const PLANS = {
     days: 30,          // Atualizado para 30 dias
     maxUsers: 999,     // Mantido em 999
     maxProducts: 99999,
-    features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "accounting", "profit_margin", "remote_dashboard", "priority_support", "api_access", "cloud_backup", "settings"],
+    features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "accounting", "profit_margin", "remote_dashboard", "priority_support", "api_access", "cloud_backup", "settings", "users"], // ADIÇÃO
     description: "Para cadeias e grandes estabelecimentos",
   },
 };
 
 const ALL_FEATURES = [
-  "pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "accounting", "profit_margin", "remote_dashboard", "priority_support", "api_access", "cloud_backup", "settings"
+  "pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "accounting", "profit_margin", "remote_dashboard", "priority_support", "api_access", "cloud_backup", "settings", "users" // ADIÇÃO
 ];
 
 export default function Licenses() {
