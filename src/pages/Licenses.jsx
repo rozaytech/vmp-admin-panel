@@ -5,7 +5,7 @@ const PLANS = {
   basic: {
     code: "basic",
     name: "Basic",
-    price: 3500,
+    price: 1350,
     days: 30,
     maxUsers: 10,      // Atualizado para 10
     maxProducts: 500,
@@ -15,7 +15,7 @@ const PLANS = {
   pro: {
     code: "pro",
     name: "Pro",
-    price: 7000,
+    price: 2700,
     days: 30,
     maxUsers: 30,      // Atualizado para 30
     maxProducts: 5000,
@@ -25,7 +25,7 @@ const PLANS = {
   enterprise: {
     code: "enterprise",
     name: "Enterprise",
-    price: 12500,      // Atualizado para 12.500 MZN/mês
+    price: 4900,      // Atualizado para 4.900 MZN/mês
     days: 30,          // Atualizado para 30 dias
     maxUsers: 999,     // Mantido em 999
     maxProducts: 99999,
@@ -985,9 +985,9 @@ export default function Licenses() {
                   fontSize: 14,
                 }}
               >
-                <option value="basic">Basic (3.500 MZN/mês)</option>
-                <option value="pro">Pro (7.000 MZN/mês)</option>
-                <option value="enterprise">Enterprise (12.500 MZN/mês)</option>
+                <option value="basic">Basic (1.350 MZN/mês)</option>
+                <option value="pro">Pro (2.700 MZN/mês)</option>
+                <option value="enterprise">Enterprise (4.900 MZN/mês)</option>
               </select>
             </div>
 
