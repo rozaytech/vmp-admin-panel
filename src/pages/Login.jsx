@@ -71,7 +71,7 @@ export default function Login() {
           </label>
           <input
             type="text"
-            placeholder="admin"
+            placeholder=""
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             style={{
@@ -91,7 +91,7 @@ export default function Login() {
           </label>
           <input
             type="password"
-            placeholder="••••••"
+            placeholder=""
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={{
