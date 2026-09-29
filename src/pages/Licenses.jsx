@@ -7,9 +7,9 @@ const PLANS = {
     name: "Basic",
     price: 1350,
     days: 30,
-    maxUsers: 10,      // Atualizado para 10
+    maxUsers: 10,
     maxProducts: 500,
-    features: ["pos", "inventory", "cash_register", "basic_reports", "z_report", "settings", "multi_warehouse", "customers", "promotions", "analytics", "users"], // ADIÇÃO
+    features: ["pos", "inventory", "cash_register", "basic_reports", "z_report", "settings", "multi_warehouse", "customers", "promotions", "analytics", "users"],
     description: "Ideal para pequenos negócios e bancas",
   },
   pro: {
@@ -17,25 +17,25 @@ const PLANS = {
     name: "Pro",
     price: 2700,
     days: 30,
-    maxUsers: 30,      // Atualizado para 30
+    maxUsers: 30,
     maxProducts: 5000,
-    features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "settings", "profit_margin", "users"], // ADIÇÃO
+    features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "settings", "profit_margin", "users"],
     description: "Para lojas em crescimento",
   },
   enterprise: {
     code: "enterprise",
     name: "Enterprise",
-    price: 4900,      // Atualizado para 4.900 MZN/mês
-    days: 30,          // Atualizado para 30 dias
-    maxUsers: 999,     // Mantido em 999
+    price: 4900,
+    days: 30,
+    maxUsers: 999,
     maxProducts: 99999,
-    features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "accounting", "profit_margin", "remote_dashboard", "priority_support", "api_access", "cloud_backup", "settings", "users"], // ADIÇÃO
+    features: ["pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "accounting", "profit_margin", "remote_dashboard", "priority_support", "api_access", "cloud_backup", "settings", "users"],
     description: "Para cadeias e grandes estabelecimentos",
   },
 };
 
 const ALL_FEATURES = [
-  "pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "accounting", "profit_margin", "remote_dashboard", "priority_support", "api_access", "cloud_backup", "settings", "users" // ADIÇÃO
+  "pos", "inventory", "cash_register", "advanced_reports", "z_report", "promotions", "customers", "multi_warehouse", "analytics", "accounting", "profit_margin", "remote_dashboard", "priority_support", "api_access", "cloud_backup", "settings", "users"
 ];
 
 export default function Licenses() {
@@ -49,7 +49,7 @@ export default function Licenses() {
   const [featuresModal, setFeaturesModal] = useState(null);
   const [selectedFeatures, setSelectedFeatures] = useState([]);
 
-  // ADIÇÃO: Verificação de permissão para esconder botões de escrita
+  // Verificação de permissão para esconder botões de escrita
   const role = (localStorage.getItem('vmp_role') || '').toLowerCase().replace(/[\s_-]/g, '');
   const isAdmin = role === 'admin' || role === 'superadmin';
 
@@ -91,7 +91,7 @@ export default function Licenses() {
   }
 
   async function markAsPaid(license) {
-    if (!confirm(`Deseja marcar a licença de ${license.client} como PAGA e convertê-la numa subscrição?`)) return;
+    if (!confirm(`Deseja marcar a licença de ${license.client_name || license.client} como PAGA e convertê-la numa subscrição?`)) return;
     try {
       await API.post("/licenses/pay", { licenseId: license.id });
       alert("Licença marcada como paga e convertida em subscrição com sucesso!");
@@ -133,7 +133,7 @@ export default function Licenses() {
   }
 
   async function generateOfflineCode(license) {
-    if (!confirm(`Deseja gerar um código de renovação offline para ${license.client}?`)) return;
+    if (!confirm(`Deseja gerar um código de renovação offline para ${license.client_name || license.client}?`)) return;
     try {
       const res = await API.post("/licenses/generate-offline-code", { machineId: license.machine_id, days: 30 });
       if (res.data.success) {
@@ -182,11 +182,13 @@ export default function Licenses() {
     const status = document.getElementById("editStatus").value;
     const expiry = document.getElementById("editExpiry").value;
     const client = document.getElementById("editClient").value.trim();
+    const clientName = document.getElementById("editClientName").value.trim();
     const machineId = document.getElementById("editMachineId").value.trim();
     if (plan !== editModal.plan) payload.plan = plan;
     if (status !== editModal.status) payload.status = status;
     if (expiry) payload.expiry = new Date(expiry).toISOString();
     if (client !== editModal.client) payload.client = client;
+    if (clientName !== (editModal.client_name || "")) payload.clientName = clientName;
     if (machineId !== editModal.machine_id) payload.machineId = machineId;
     if (Object.keys(payload).length === 0) {
       alert("Nenhuma alteração feita");
@@ -234,6 +236,7 @@ export default function Licenses() {
       const q = search.toLowerCase();
       return (
         l.client?.toLowerCase().includes(q) ||
+        l.client_name?.toLowerCase().includes(q) ||
         l.machine_id?.toLowerCase().includes(q) ||
         l.plan?.toLowerCase().includes(q)
       );
@@ -263,7 +266,7 @@ export default function Licenses() {
       <div style={{ marginBottom: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
         <input
           type="text"
-          placeholder="Buscar por cliente, machine ID..."
+          placeholder="Buscar por cliente, empresa, machine ID..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyUp={(e) => e.key === "Enter" && load()}
@@ -334,7 +337,7 @@ export default function Licenses() {
             <table
               style={{
                 width: "100%",
-                minWidth: '800px',
+                minWidth: '1000px',
                 borderCollapse: "collapse",
                 fontSize: 14,
                 color: "#f0f6fc",
@@ -342,7 +345,8 @@ export default function Licenses() {
             >
               <thead>
                 <tr style={{ background: "#0d1117", borderBottom: "1px solid #21262d" }}>
-                  <th style={{ textAlign: "left", padding: "14px 16px" }}>Cliente</th>
+                  <th style={{ textAlign: "left", padding: "14px 16px" }}>Cliente / Empresa</th>
+                  <th style={{ textAlign: "left", padding: "14px 16px" }}>Email</th>
                   <th style={{ textAlign: "left", padding: "14px 16px" }}>Plano</th>
                   <th style={{ textAlign: "left", padding: "14px 16px" }}>Estado</th>
                   <th style={{ textAlign: "left", padding: "14px 16px" }}>Pagamento</th>
@@ -370,6 +374,9 @@ export default function Licenses() {
                       }}
                     >
                       <td style={{ padding: "12px 16px", fontWeight: 500 }}>
+                        {l.client_name || <span style={{ color: "#b0b3b8", fontStyle: "italic" }}>Não informado</span>}
+                      </td>
+                      <td style={{ padding: "12px 16px", color: "#b0b3b8", fontSize: 13 }}>
                         {l.client}
                       </td>
                       <td style={{ padding: "12px 16px" }}>
@@ -455,7 +462,6 @@ export default function Licenses() {
                         {l.machine_id?.substring(0, 20)}...
                       </td>
                       <td style={{ padding: "12px 16px" }}>
-                        {/* ADIÇÃO: Botões de ação apenas para administradores */}
                         {isAdmin && (
                           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                           <button
@@ -594,7 +600,7 @@ export default function Licenses() {
         </div>
       )}
 
-      {/* NOVO: Modal de Funcionalidades Personalizadas (Substituição Total) */}
+      {/* Modal de Funcionalidades Personalizadas */}
       {featuresModal && (
         <div
           style={{
@@ -624,7 +630,7 @@ export default function Licenses() {
           >
             <h3 style={{ margin: "0 0 8px" }}>Personalizar Módulos</h3>
             <p style={{ color: "#b0b3b8", fontSize: 13, marginBottom: 20 }}>
-              Cliente: <strong style={{ color: "#f0f6fc" }}>{featuresModal.client}</strong>
+              Cliente / Empresa: <strong style={{ color: "#f0f6fc" }}>{featuresModal.client_name || featuresModal.client}</strong>
               <br />
               Plano atual: <strong style={{ color: "#a78bfa" }}>{featuresModal.plan.toUpperCase()}</strong>
               <br />
@@ -711,7 +717,7 @@ export default function Licenses() {
         </div>
       )}
 
-      {/* Modais (Mantidos, mas com tema escuro) */}
+      {/* Modal de Transferência */}
       {transferModal && (
         <div
           style={{
@@ -739,7 +745,7 @@ export default function Licenses() {
           >
             <h3 style={{ margin: "0 0 8px" }}>Transferir Licença</h3>
             <p style={{ color: "#b0b3b8", fontSize: 14, marginBottom: 20 }}>
-              Cliente: <strong>{transferModal.client}</strong>
+              Cliente / Empresa: <strong>{transferModal.client_name || transferModal.client}</strong>
               <br />
               Plano: <strong>{transferModal.plan}</strong>
               <br />
@@ -810,6 +816,7 @@ export default function Licenses() {
         </div>
       )}
 
+      {/* Modal de Reativação */}
       {reactivateModal && (
         <div
           style={{
@@ -837,7 +844,7 @@ export default function Licenses() {
           >
             <h3 style={{ margin: "0 0 8px" }}>Reativar Licença</h3>
             <p style={{ color: "#b0b3b8", fontSize: 14, marginBottom: 20 }}>
-              Cliente: <strong>{reactivateModal.client}</strong>
+              Cliente / Empresa: <strong>{reactivateModal.client_name || reactivateModal.client}</strong>
               <br />
               Plano: <strong>{reactivateModal.plan}</strong>
               <br />
@@ -919,6 +926,7 @@ export default function Licenses() {
         </div>
       )}
 
+      {/* Modal de Edição */}
       {editModal && (
         <div
           style={{
@@ -950,7 +958,28 @@ export default function Licenses() {
 
             <div style={{ marginBottom: 16 }}>
               <label style={{ fontSize: 14, fontWeight: 500, display: "block", marginBottom: 6 }}>
-                Cliente / Email:
+                Cliente / Empresa:
+              </label>
+              <input
+                id="editClientName"
+                type="text"
+                defaultValue={editModal.client_name || ""}
+                placeholder="Ex: Mercearia Silva"
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #30363d",
+                  background: "#0d1117",
+                  color: "#f0f6fc",
+                  fontSize: 14,
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 14, fontWeight: 500, display: "block", marginBottom: 6 }}>
+                Email:
               </label>
               <input
                 id="editClient"

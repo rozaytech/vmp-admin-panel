@@ -78,9 +78,11 @@ export default function Dashboard() {
           ) : (
             stats.recentRequests.map((r) => (
               <div key={r.id} style={{ padding: 12, marginBottom: 8, background: '#0d1117', borderRadius: 8 }}>
-                <div style={{ fontWeight: 500, fontSize: 14, color: '#f0f6fc' }}>{r.client_email}</div>
+                <div style={{ fontWeight: 500, fontSize: 14, color: '#f0f6fc' }}>
+                  {r.client_name || <span style={{ color: '#b0b3b8', fontStyle: 'italic' }}>Não informado</span>}
+                </div>
                 <div style={{ fontSize: 12, color: '#b0b3b8' }}>
-                  {r.plan} • {new Date(r.created_at).toLocaleDateString('pt-PT')}
+                  {r.client_email} • {r.plan} • {new Date(r.created_at).toLocaleDateString('pt-PT')}
                 </div>
               </div>
             ))
@@ -95,7 +97,9 @@ export default function Dashboard() {
             stats.recentSubscriptions.map((s) => (
               <div key={s.id} style={{ padding: 12, marginBottom: 8, background: '#0d1117', borderRadius: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontWeight: 500, color: '#f0f6fc' }}>{s.client}</span>
+                  <span style={{ fontWeight: 500, color: '#f0f6fc' }}>
+                    {s.client_name || s.client}
+                  </span>
                   <span style={{
                     padding: '4px 12px',
                     borderRadius: 12,
@@ -107,7 +111,7 @@ export default function Dashboard() {
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: '#b0b3b8', marginTop: 4 }}>
-                  {s.plan} • {new Date(s.expiry_date).toLocaleDateString('pt-PT')}
+                  {s.client} • {s.plan} • {new Date(s.expiry_date).toLocaleDateString('pt-PT')}
                 </div>
               </div>
             ))

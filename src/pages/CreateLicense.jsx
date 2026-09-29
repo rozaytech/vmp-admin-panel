@@ -8,7 +8,7 @@ const PLANS = {
     name: "Basic",
     price: 1350,
     days: 30,
-    maxUsers: 10,      // Atualizado para 10
+    maxUsers: 10,
     maxProducts: 500,
     features: ["pos", "inventory", "cash_register", "basic_reports", "z_report"],
     description: "Ideal para pequenos negocios e bancas",
@@ -18,7 +18,7 @@ const PLANS = {
     name: "Pro",
     price: 2700,
     days: 30,
-    maxUsers: 30,      // Atualizado para 30
+    maxUsers: 30,
     maxProducts: 5000,
     features: [
       "pos",
@@ -37,8 +37,8 @@ const PLANS = {
     code: "enterprise",
     name: "Enterprise",
     price: 4900,
-    days: 30,          // CORRIGIDO: De 365 para 30
-    maxUsers: 999,     // Mantido em 999
+    days: 30,
+    maxUsers: 999,
     maxProducts: 99999,
     features: [
       "pos",
@@ -63,15 +63,16 @@ const PLANS = {
 export default function CreateLicense() {
   const [machineId, setMachineId] = useState("");
   const [client, setClient] = useState("");
+  const [clientName, setClientName] = useState("");
   const [plan, setPlan] = useState("enterprise");
-  const [days, setDays] = useState(30); // Atualizado para 30
+  const [days, setDays] = useState(30);
 
   const [license, setLicense] = useState("");
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // ADIÇÃO: Verificação de permissão para esconder o formulário de escrita
+  // Verificação de permissão para esconder o formulário de escrita
   const role = (localStorage.getItem('vmp_role') || '').toLowerCase().replace(/[\s_-]/g, '');
   const isAdmin = role === 'admin' || role === 'superadmin';
 
@@ -85,6 +86,7 @@ export default function CreateLicense() {
       const res = await API.post("/license/generate", {
         machineId,
         client,
+        clientName,
         plan,
         days,
       });
@@ -106,7 +108,6 @@ export default function CreateLicense() {
     <div style={{ padding: 40 }}>
       <h2 style={{ margin: "0 0 24px", fontSize: 28, color: "#f0f6fc" }}>Criar Licença</h2>
 
-      {/* ADIÇÃO: Formulário apenas para administradores */}
       {isAdmin ? (
         <>
       <input
@@ -128,7 +129,25 @@ export default function CreateLicense() {
       />
 
       <input
-        placeholder="Cliente / Email"
+        placeholder="Nome do Cliente / Empresa"
+        value={clientName}
+        onChange={(e) => setClientName(e.target.value)}
+        style={{
+          display: "block",
+          marginBottom: 16,
+          padding: "12px 14px",
+          width: "100%",
+          backgroundColor: "#0d1117",
+          color: "#f0f6fc",
+          border: "1px solid #30363d",
+          borderRadius: 8,
+          fontSize: 14,
+          boxSizing: "border-box"
+        }}
+      />
+
+      <input
+        placeholder="Email do Cliente"
         value={client}
         onChange={(e) => setClient(e.target.value)}
         style={{
@@ -256,6 +275,9 @@ export default function CreateLicense() {
           </h4>
           <p style={{ margin: "4px 0" }}>
             <strong>ID:</strong> <span style={{ fontFamily: "monospace", color: "#b0b3b8" }}>{subscription.id}</span>
+          </p>
+          <p style={{ margin: "4px 0" }}>
+            <strong>Cliente / Empresa:</strong> {subscription.clientName || "Não informado"}
           </p>
           <p style={{ margin: "4px 0" }}>
             <strong>Plano:</strong> <span style={{ textTransform: "uppercase", color: "#4fc3f7" }}>{subscription.plan}</span>

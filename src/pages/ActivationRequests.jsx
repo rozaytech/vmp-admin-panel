@@ -103,6 +103,7 @@ export default function ActivationRequests() {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, color: '#f0f6fc' }}>
               <thead>
                 <tr style={{ background: '#0d1117', borderBottom: '1px solid #21262d' }}>
+                  <th style={{ textAlign: 'left', padding: '14px 16px', color: '#b0b3b8' }}>Cliente / Empresa</th>
                   <th style={{ textAlign: 'left', padding: '14px 16px', color: '#b0b3b8' }}>Email</th>
                   <th style={{ textAlign: 'left', padding: '14px 16px', color: '#b0b3b8' }}>Machine ID</th>
                   <th style={{ textAlign: 'left', padding: '14px 16px', color: '#b0b3b8' }}>Plano</th>
@@ -116,7 +117,10 @@ export default function ActivationRequests() {
                   const statusStyle = statusColors[req.status] || statusColors.pending;
                   return (
                     <tr key={req.id} style={{ borderBottom: '1px solid #21262d' }}>
-                      <td style={{ padding: '12px 16px' }}>{req.client_email}</td>
+                      <td style={{ padding: '12px 16px', fontWeight: 500, color: '#f0f6fc' }}>
+                        {req.client_name || <span style={{ color: '#b0b3b8', fontStyle: 'italic' }}>Não informado</span>}
+                      </td>
+                      <td style={{ padding: '12px 16px', color: '#b0b3b8' }}>{req.client_email}</td>
                       <td style={{ padding: '12px 16px', fontSize: 12, color: '#b0b3b8', fontFamily: 'monospace' }}>
                         {req.machine_id.substring(0, 16)}...
                       </td>
@@ -151,7 +155,6 @@ export default function ActivationRequests() {
                         {new Date(req.created_at).toLocaleDateString('pt-PT')}
                       </td>
                       <td style={{ padding: '12px 16px' }}>
-                        {/* ADIÇÃO: Botões de ação apenas para administradores */}
                         {isAdmin && req.status === 'pending' && (
                           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                             <button
